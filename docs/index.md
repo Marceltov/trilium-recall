@@ -41,8 +41,9 @@ volumes:
   recall-index:
 ```
 
-Create the ETAPI token in Trilium Notes under *Options → ETAPI*. The engine only reads, but a Trilium
-Notes ETAPI token can write, so keep it in the engine's environment and nowhere else.
+Create an ETAPI token for the engine in Trilium Notes under *Options → ETAPI* (name it `recall-engine`).
+Trilium Notes (0.106) has no read-only tokens, so this token could write. The engine only ever sends
+GET requests; keep the token in its environment and nowhere else.
 
 `docker compose up -d trilium-recall`, then `curl http://<host>:8082/health`. The first index build
 takes about half a minute for a few hundred notes; `status` turns from `starting` to `ok`.
