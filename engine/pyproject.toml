@@ -1,0 +1,32 @@
+[project]
+name = "trilium_recall"
+version = "0.0.0"
+description = "Recall engine for the trilium-llm-wiki plugin: hybrid search over a Trilium instance"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=3.0.0",
+    "httpx>=0.28.1",
+    "numpy>=2.0",
+    "onnxruntime>=1.20",
+    "pyyaml>=6.0",
+    "selectolax>=0.3.21",
+    "sqlite-vec>=0.1.6",
+    "starlette>=0.40",
+    "tokenizers>=0.20",
+    "uvicorn>=0.30",
+]
+
+[tool.uv]
+# Flat modules in app/; install only the dependencies (no build backend needed).
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["app"]
+testpaths = ["app/tests"]
+asyncio_mode = "auto"
