@@ -55,3 +55,8 @@ def test_render_budget():
     out = render(hits)
     assert approx_tokens(out) <= 400 and out.startswith("Wiki recall")
     assert "1. Title 0" in out
+
+
+def test_render_flattens_passage_whitespace():
+    out = render([hit("a", "A", passage="first line\n- item one\n\n- item two")])
+    assert '"first line - item one - item two"' in out

@@ -182,15 +182,17 @@ def rank(instance: str, index: Index, embedder: Embedder, query: str, cwd: str |
                         shown.area, section.heading_path, _passage(section.text, words), score, [],
                         via_source))
 
-    # Links: neighbours that were candidates first, then hubs, then the rest by id.
+    # Links: wiki pages before sources and before journal/other (day notes are mostly the wiki log),
+    # within that neighbours that were candidates, then hubs, then the rest by id.
     candidate_notes = {c.section.note_id for c in candidates.values()}
     shown_ids = {h.note_id for h in hits} | used
+    area_order = {"wiki": 0, "source": 1}
     for hit in hits:
         neighbour_ids = {other for _, other in index.neighbours(hit.note_id)}
         first = summary_first.get(hit.note_id)
-        ordered = sorted(neighbour_ids - shown_ids - {first},
-                         key=lambda o: (o not in candidate_notes,
-                                        (note(o).wiki_type if note(o) else None) != "hub", o))
+        ordered = sorted((o for o in neighbour_ids - shown_ids - {first} if note(o)),
+                         key=lambda o: (area_order.get(note(o).area, 2), o not in candidate_notes,
+                                        note(o).wiki_type != "hub", o))
         if first:
             ordered.insert(0, first)
         for other in ordered:

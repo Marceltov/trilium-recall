@@ -117,3 +117,12 @@ def test_context_terms():
     assert context_terms("/root/trilium/trilium-marcel") == ["trilium", "marcel"]
     assert context_terms("/home/me/src/app") == ["me"]
     assert context_terms(None) == [] and context_terms("/") == []
+
+
+def test_links_prefer_wiki_over_journal(world_idx):
+    idx, emb = world_idx
+    put(idx, emb, "day", "16 - Friday", "<p>log: edited proxmox swap limit page</p>", area="journal")
+    idx.set_links("day", [("internalLink", "prox")])
+    hit = rank("marcel", idx, emb, "proxmox swap limit", params=P, limit=1)[0]
+    # prox has three wiki neighbours (hub, net, bk2); a day note only fills a free slot.
+    assert "day" not in [l[0] for l in hit.links] and len(hit.links) == 3

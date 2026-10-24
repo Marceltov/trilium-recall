@@ -17,6 +17,7 @@ def _hit_lines(n: int, hit: Hit, several: bool, with_links: bool, passage: str) 
     if several:
         line += f" @{hit.instance}"
     lines = [line]
+    passage = " ".join(passage.split())  # one line: list breaks and blank lines cost tokens
     heading = " › ".join(hit.heading_path)
     lines.append(f'   § {heading}: "{passage}"' if heading else f'   "{passage}"')
     if hit.via_source:
