@@ -65,7 +65,7 @@ def test_nothing_relevant_returns_empty(world_idx):
 
 
 def test_identifier_rescue(world_idx):
-    strict = RankParams(min_cos=0.99)
+    strict = RankParams(min_cos=0.99, bm25_rescue_min_terms=2)
     assert [h.note_id for h in rank("marcel", *world_idx, "vmbr0 vlan tag", params=strict)][:1] == ["net"]
     assert rank("marcel", *world_idx, "vlan tag", params=strict) == []
 
@@ -100,7 +100,7 @@ def test_long_passage_cut_around_match(tmp_path):
     emb = HashEmbedder()
     idx = Index(tmp_path / "i.db", emb.name, emb.dim)
     put(idx, emb, "long", "Long", "<p>" + "filler " * 200 + "needle zebra here " + "filler " * 200 + "</p>")
-    hit = rank("marcel", idx, emb, "needle zebra", params=P)[0]
+    hit = rank("marcel", idx, emb, "needle zebra", params=RankParams(min_cos=0.2, bm25_rescue_min_terms=2))[0]
     assert "needle zebra" in hit.passage and hit.passage.startswith("…") and hit.passage.endswith("…")
     assert len(hit.passage) <= 250
 

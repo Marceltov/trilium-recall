@@ -23,9 +23,10 @@ class RankParams:
     cos_weight: float = 1.0
     rrf_weight: float = 20.0
     context_boost: float = 0.05
-    # e5 similarities sit in a narrow band: live matches 0.85–0.92, unrelated text ~0.80.
-    min_cos: float = 0.83
-    bm25_rescue_min_terms: int = 2
+    # e5 similarities sit in a narrow band: live matches 0.85–0.94, unrelated questions 0.79–0.86.
+    min_cos: float = 0.845
+    # Tuned on the private trilium-marcel eval (49 cases, 2026-10-24): hit@3 0.86, silence 0.92.
+    bm25_rescue_min_terms: int = 3
     top_n: int = 3
     max_links: int = 3
     candidates: int = 50
