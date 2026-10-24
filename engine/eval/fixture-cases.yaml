@@ -1,0 +1,19 @@
+# Synthetic cases against the fixture wiki (fixture/seed.py). Real cases live in the
+# private homelab repo, never here.
+- {query: "how much RAM does CT 101 have and is there swap", expect: [fxLxcMemory]}
+- {query: "the database container keeps getting OOM killed", expect: [fxLxcMemory]}
+- {query: "which bridge carries the IoT VLAN", expect: [fxBridges]}
+- {query: "vmbr1 mtu", expect: [fxBridges]}
+- {query: "when do the guest backups run and how long are they kept", expect: [fxBackups]}
+- {query: "where does the offsite backup copy go", expect: [fxBackups, fxRestic]}
+- {query: "how do I restore a trilium backup", cwd: /root/trilium/trilium-marcel, expect: [fxTrBackup]}
+- {query: "where do I create an ETAPI token", expect: [fxEtapi]}
+- {query: "Lohnt sich der JR Pass für meine Japanreise?", expect: [fxJrPass]}
+- {query: "Was muss ich für Japan einpacken?", expect: [fxPackliste]}
+- {query: "Wie viel Speicher braucht ein Datenbank-Container?", expect: [fxSumArticle, fxLxcMemory]}
+- {query: "nginx ingress upload limit annotation", expect: [fxSrcClip]}
+- {query: "best sourdough hydration for a beginner loaf", expect: none}
+- {query: "who won the 1998 football world cup", expect: none}
+- {query: "how do I center a div in css", expect: none}
+- {query: "Wie backe ich einen Apfelkuchen?", expect: none}
+- {query: "zebra iptables legacy rules", expect: none}

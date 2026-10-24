@@ -1,0 +1,29 @@
+# Dev and test stack: a throwaway Trilium seeded with a synthetic LLM wiki
+# (fixture/trilium-data) and the recall engine built from local source.
+# Both credentials are committed dev fixtures for this disposable instance only.
+services:
+  trilium:
+    # Pinned to production's version, so the committed DB is never migrated by a pull.
+    image: triliumnext/trilium:v0.106.1
+    ports:
+      - "9190:8080"
+    volumes:
+      - ./fixture/trilium-data:/home/node/trilium-data
+  recall:
+    build: .
+    depends_on: [trilium]
+    environment:
+      RECALL_TOKEN: dev-only-recall-token
+      RECALL_INSTANCES: fixture
+      TRILIUM_FIXTURE_URL: http://trilium:8080
+      TRILIUM_FIXTURE_TOKEN: "C5UabwKWscNW_jpk8BcWnPXPkJykgOlk4M9YGOboq+zUAYYM9MIe328o="
+      # Fast cycles so the live tests see edits quickly.
+      RECALL_POLL_SECONDS: "2"
+      RECALL_RECONCILE_SECONDS: "10"
+    ports:
+      - "9191:8082"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8082/health | grep -q '\"ok\"'"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
