@@ -25,7 +25,7 @@ CLASSIFY = {
     "locks": None,
     "templates": None,
     "views": None,
-    "schema": None,
+    "schema": "wiki",  # the rulebook holds standing preferences worth recalling
 }
 POLL_MARGIN = timedelta(seconds=120)
 LINK_RELATIONS = ("internalLink", "relatesTo", "wikiSource")

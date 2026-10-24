@@ -19,6 +19,18 @@ from text import Section
 CHUNKER_VERSION = 1
 SCHEMA_VERSION = 1
 MAX_QUERY_TERMS = 64
+# Function words in English and German: they match everywhere and say nothing about the topic.
+STOPWORDS = frozenset("""
+a an and are as at be been but by can could did do does doing for from had has have how i if in into is it
+its me my no not of on or our please should so than that the their them then there these they this to
+us was we were what when where which who why will with would you your yes ok okay let lets just also
+make get got about like any some
+der die das den dem des ein eine einen einem einer eines und oder aber ist sind war waren bin bist hat
+haben hatte ich du er sie es wir ihr mich mir dich dir uns euch sich mein meine dein wie was wo wann warum
+wer welche welcher welches nicht kein keine mit von zu zum zur auf an am im in aus bei nach vor fur uber
+unter um als auch noch schon nur so dass da dann denn doch ja nein mal bitte kann konnen soll sollte muss
+mache machen wird werden wurde
+""".split())
 
 
 @dataclass
@@ -53,6 +65,11 @@ def fold(s: str) -> str:
 
 def terms(s: str) -> list[str]:
     return re.findall(r"\w+", fold(s))
+
+
+def query_terms(s: str) -> list[str]:
+    """Distinct content words of a query, in order."""
+    return list(dict.fromkeys(t for t in terms(s) if t not in STOPWORDS))
 
 
 class Index:
@@ -187,7 +204,7 @@ class Index:
                     self._db.execute("SELECT count(*) FROM sections").fetchone()[0])
 
     def _query_terms(self, query: str) -> list[str]:
-        unique = list(dict.fromkeys(terms(query)))
+        unique = query_terms(query)
         if len(unique) <= MAX_QUERY_TERMS:
             return unique
         placeholders = ",".join("?" * len(unique))
@@ -222,6 +239,13 @@ class Index:
                 (sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32)), k)).fetchall()
         return [SectionHit(sid, note_id, tuple(json.loads(hp)), text, 1.0 - dist)
                 for sid, note_id, hp, text, dist in rows]
+
+    def note_sections(self, note_id: str) -> list[SectionHit]:
+        """All sections of a note in order, as hits with score 0."""
+        with self.lock:
+            rows = self._db.execute("SELECT id, heading_path, text FROM sections WHERE note_id = ? ORDER BY ordinal",
+                                    (note_id,)).fetchall()
+        return [SectionHit(sid, note_id, tuple(json.loads(hp)), text, 0.0) for sid, hp, text in rows]
 
     def section_vectors(self, section_ids: list[int]) -> dict[int, np.ndarray]:
         if not section_ids:

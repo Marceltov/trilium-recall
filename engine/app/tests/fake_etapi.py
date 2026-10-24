@@ -135,6 +135,7 @@ class World:
     template: str
     other_note: str
     archived: str
+    schema: str
 
     def __getattr__(self, name):  # world.fail, world.set_content(...) etc. go to the fake
         return getattr(self.etapi, name)
@@ -154,7 +155,7 @@ def build_world() -> World:
     locks = e.add("Locks", root, labels=[("llmWikiPart", "locks")])
     templates = e.add("Templates", root, labels=[("llmWikiPart", "templates")])
     e.add("Views", root, labels=[("llmWikiPart", "views")])
-    e.add("Schema", root, content="<p>the rules</p>", labels=[("llmWikiSchema", ""), ("llmWikiPart", "schema")])
+    schema = e.add("Schema", root, content="<p>the rules</p>", labels=[("llmWikiSchema", ""), ("llmWikiPart", "schema")])
     template = e.add("Wiki Concept", templates, content="<p>template body</p>")
     hub = e.add("Homelab", wiki, content="<p>Hub for the homelab</p>",
                 labels=[("wikiTopic", "homelab")], inherited=[("wiki", ""), ("wikiType", "hub")])
@@ -176,4 +177,4 @@ def build_world() -> World:
     e.notes[archived].archived = True
     e.add("Hidden thing", "root", note_id="_hidden_x", content="<p>hidden</p>")
     e.add("A drawing", "root", type="canvas")
-    return World(e, wiki, locks, hub, page, summary, source, day, claim, template, other, archived)
+    return World(e, wiki, locks, hub, page, summary, source, day, claim, template, other, archived, schema)

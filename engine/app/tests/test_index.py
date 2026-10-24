@@ -117,3 +117,17 @@ def test_meta_mismatch_triggers_rebuild(tmp_path):
 def test_counts(idx, emb):
     add(idx, emb, "n1", "T", "<h2>a</h2><p>x</p><h2>b</h2><p>y</p>")
     assert idx.counts() == (1, 2)
+
+
+def test_note_sections(idx, emb):
+    add(idx, emb, "n1", "T", "<h2>a</h2><p>x</p><h2>b</h2><p>y</p>")
+    secs = idx.note_sections("n1")
+    assert [(s.heading_path, s.text) for s in secs] == [(("a",), "x"), (("b",), "y")]
+    assert idx.note_sections("nope") == []
+
+
+def test_stopwords_never_match(idx, emb):
+    add(idx, emb, "n1", "Cake", "<p>how do I make a cake? Wie mache ich ein Brot an?</p>")
+    assert idx.fts_search("how do I make a") == []
+    assert idx.fts_search("wie ich ein an") == []
+    assert idx.fts_search("how do I bake a cake")[0].matched_terms == 1

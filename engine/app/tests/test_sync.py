@@ -31,12 +31,13 @@ def test_full_build_classifies_areas(world, syncer, idx):
     assert idx.note(world.day_note).area == "journal"
     assert idx.note(world.other_note).area == "other"
     assert idx.note(world.lock_claim) is None and idx.note(world.template) is None
+    assert idx.fts_search("rules")[0].note_id == world.schema and idx.note(world.schema).area == "wiki"
 
 
 def test_full_build_skips_plumbing_hidden_archived_and_non_text(world, syncer, idx):
     syncer.full_build()
     titles = {idx.note(n).title for n in idx.all_notes()}
-    assert not titles & {"Schema", "Locks", "Wiki Concept", "Old stuff", "Hidden thing", "A drawing"}
+    assert not titles & {"Locks", "Wiki Concept", "Old stuff", "Hidden thing", "A drawing"}
 
 
 def test_full_build_reads_labels_and_links(world, syncer, idx):
@@ -97,7 +98,7 @@ def test_trilium_down_keeps_index(world, syncer, idx):
 
 def test_status_counts(world, syncer):
     syncer.full_build()
-    assert syncer.status.notes == 9 and syncer.status.sections == 6 and syncer.status.last_ok
+    assert syncer.status.notes == 10 and syncer.status.sections == 7 and syncer.status.last_ok
 
 
 def test_never_mutates(world, syncer):
