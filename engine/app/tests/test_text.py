@@ -41,3 +41,9 @@ def test_plain_text_input():
 
 def test_content_hash_stable():
     assert content_hash("x") == content_hash("x") != content_hash("y")
+
+
+def test_br_and_nested_blocks_keep_words_apart():
+    assert html_to_sections("<p>foo<br>bar</p>")[0].text == "foo bar"
+    assert html_to_sections("<ul><li><p>x</p><p>y</p></li></ul>")[0].text == "- x y"
+    assert html_to_sections("<table><tr><td><p>a</p><p>b</p></td></tr></table>")[0].text == "a b"

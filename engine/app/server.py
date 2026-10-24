@@ -97,7 +97,10 @@ class Engine:
 
     async def run_sync_forever(self) -> None:
         last_reconcile = time.monotonic()
-        await anyio.to_thread.run_sync(self.sync_all_once)
+        try:
+            await anyio.to_thread.run_sync(self.sync_all_once)
+        except Exception:  # an instance not marked ready is retried by poll_once below
+            log.exception("first sync failed")
         while True:
             await asyncio.sleep(self.config.poll_seconds)
             try:

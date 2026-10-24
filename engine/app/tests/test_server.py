@@ -111,3 +111,19 @@ def test_error_app_reports_message():
         r = c.get("/health")
         assert r.status_code == 503 and r.json() == {"status": "error", "error": "RECALL_TOKEN is not set"}
         assert c.post("/recall", json={"prompt": "x"}).status_code == 503
+
+
+async def test_sync_loop_survives_a_crash_in_the_first_sync(engine):
+    import asyncio
+    calls = []
+
+    def boom():
+        raise RuntimeError("sqlite exploded")
+
+    engine.sync_all_once = boom
+    engine.poll_once = lambda: calls.append("poll")
+    engine.config.poll_seconds = 0.01
+    task = asyncio.create_task(engine.run_sync_forever())
+    await asyncio.sleep(0.3)
+    task.cancel()
+    assert calls, "the loop stopped after the first sync failed"

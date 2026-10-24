@@ -29,8 +29,29 @@ def content_hash(s: str) -> str:
     return hashlib.sha256(s.encode()).hexdigest()
 
 
+BLOCK_TAGS = {"p", "div", "li", "ul", "ol", "table", "tr", "td", "th", "h1", "h2", "h3", "h4", "h5", "h6",
+              "pre", "blockquote", "section", "article", "figure", "details", "summary"}
+
+
+def _text(node: Node) -> str:
+    """Text of a node, with a space wherever a block element or <br> separates words."""
+    parts = []
+    for child in node.iter(include_text=True):
+        if child.tag == "-text":
+            parts.append(child.text_content or "")
+        elif child.tag == "br":
+            parts.append(" ")
+        elif child.tag in SKIP_TAGS:
+            continue
+        elif child.tag in BLOCK_TAGS:
+            parts.append(f" {_text(child)} ")
+        else:
+            parts.append(_text(child))
+    return "".join(parts)
+
+
 def _inline(node: Node) -> str:
-    return re.sub(r"\s+", " ", node.text(deep=True, separator="")).strip()
+    return re.sub(r"\s+", " ", _text(node)).strip()
 
 
 def _list_lines(node: Node, depth: int = 0) -> list[str]:
@@ -44,8 +65,10 @@ def _list_lines(node: Node, depth: int = 0) -> list[str]:
                 nested.extend(_list_lines(child, depth + 1))
             elif child.tag == "-text":
                 own.append(child.text_content or "")
+            elif child.tag in BLOCK_TAGS:
+                own.append(f" {_text(child)} ")
             else:
-                own.append(child.text(deep=True, separator=""))
+                own.append(_text(child))
         text = re.sub(r"\s+", " ", "".join(own)).strip()
         if text:
             lines.append("  " * depth + "- " + text)
@@ -78,7 +101,7 @@ def _blocks(node: Node):
     for child in node.iter(include_text=True):
         tag = child.tag
         if tag == "-text" or tag in ("span", "a", "strong", "em", "b", "i", "code", "u", "s", "sub", "sup", "mark", "br"):
-            pending_inline.append(child.text_content if tag == "-text" else child.text(deep=True, separator=""))
+            pending_inline.append(child.text_content if tag == "-text" else " " if tag == "br" else _text(child))
             continue
         if (text := flush()):
             yield ("text", None, text)

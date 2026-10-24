@@ -76,6 +76,13 @@ run "empty context → silent" empty none
 run "HTTP 500 → silent" error none
 run "non-JSON → silent" garbage none
 run "slow engine → silent within the time limit" slow none
+input=$(python3 -c 'import json; print(json.dumps({"session_id": "s", "cwd": "/", "prompt": "log line " * 40000}))')
+run "a 360 KB prompt still gets recall" context context
+python3 -c '
+import json, sys
+p = json.load(open(sys.argv[1]))["body"]["prompt"]
+assert len(p) == 20000, len(p)
+' "$tmp/last-request" && echo "ok: long prompt truncated to 20000 chars" || { echo "FAIL: long prompt not truncated"; fail=1; }
 printf '{"url": "http://127.0.0.1:1", "token": "t"}' > "$CLAUDE_PLUGIN_DATA/recall.json"
 run "engine down → silent" context none
 echo 'not json' > "$CLAUDE_PLUGIN_DATA/recall.json"
