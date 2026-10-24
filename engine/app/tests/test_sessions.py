@@ -36,3 +36,12 @@ def test_activity_extends_session():
     m.fresh("s", ["b"])
     m.sweep(now=time.time() + 5)
     assert m.fresh("s", ["a"]) == []
+
+
+def test_peek_does_not_record_until_record():
+    m = SessionMemory()
+    assert m.peek("s", ["a", "b"]) == ["a", "b"]
+    assert m.peek("s", ["a", "b"]) == ["a", "b"]
+    m.record("s", ["a"])
+    assert m.peek("s", ["a", "b"]) == ["b"]
+    assert m.peek(None, ["a"]) == ["a"]

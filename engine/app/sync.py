@@ -170,8 +170,12 @@ class Syncer:
     # -- public ------------------------------------------------------------------------------
 
     def full_build(self) -> None:
-        self.index.reset()
-        self.reconcile()
+        def work():
+            # Scan before reset: during an outage the old index keeps serving.
+            in_scope, _ = self._scan(SCOPE)
+            self.index.reset()
+            return self._apply(in_scope, self._titles(in_scope))
+        self._guarded(work)
 
     def reconcile(self) -> int:
         def work():
@@ -195,7 +199,7 @@ class Syncer:
             for nid in excluded & set(self.index.all_notes()):
                 self.index.delete_note(nid)
                 changed += 1
-            titles = {nid: (r.title, []) for nid in self.index.all_notes() if (r := self.index.note(nid))}
+            titles = {nid: (title, []) for nid, title in self.index.titles().items()}
             titles.update(self._titles(in_scope))
             return changed + self._apply(in_scope, titles)
         return self._guarded(work)

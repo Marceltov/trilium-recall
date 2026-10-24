@@ -131,3 +131,9 @@ def test_stopwords_never_match(idx, emb):
     assert idx.fts_search("how do I make a") == []
     assert idx.fts_search("wie ich ein an") == []
     assert idx.fts_search("how do I bake a cake")[0].matched_terms == 1
+
+
+def test_titles_in_one_call(idx, emb):
+    add(idx, emb, "n1", "One", "<p>x</p>")
+    add(idx, emb, "n2", "Two", "<p>y</p>")
+    assert idx.titles() == {"n1": "One", "n2": "Two"}

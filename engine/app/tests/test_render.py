@@ -60,3 +60,12 @@ def test_render_budget():
 def test_render_flattens_passage_whitespace():
     out = render([hit("a", "A", passage="first line\n- item one\n\n- item two")])
     assert '"first line - item one - item two"' in out
+
+
+def test_fit_reports_the_hits_it_shows():
+    from render import fit
+    long = "word " * 150
+    hits = [hit(str(i), f"Title {i} " + "x " * 120, passage=long) for i in range(3)]
+    text, shown = fit(hits)
+    assert text == render(hits) and 0 < len(shown) < 3
+    assert [h.note_id for h in shown] == [str(i) for i in range(len(shown))]

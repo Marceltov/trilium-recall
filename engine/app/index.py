@@ -198,6 +198,10 @@ class Index:
             return {r[0]: (r[1], r[2]) for r in
                     self._db.execute("SELECT note_id, content_hash, attr_hash FROM notes")}
 
+    def titles(self) -> dict[str, str]:
+        with self.lock:
+            return dict(self._db.execute("SELECT note_id, title FROM notes"))
+
     def counts(self) -> tuple[int, int]:
         with self.lock:
             return (self._db.execute("SELECT count(*) FROM notes").fetchone()[0],

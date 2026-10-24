@@ -37,8 +37,13 @@ def _shorten(passage: str) -> str:
 
 
 def render(hits: list[Hit], max_tokens: int = 400) -> str:
+    return fit(hits, max_tokens)[0]
+
+
+def fit(hits: list[Hit], max_tokens: int = 400) -> tuple[str, list[Hit]]:
+    """The text and the hits it actually contains (the budget may drop hits from the end)."""
     if not hits:
-        return ""
+        return "", []
     several = len({h.instance for h in hits}) > 1
     header = HEADER.format(instance="" if several else f" ({hits[0].instance})")
     # Degrade until it fits: drop links, then shorten passages, then drop hits from the end.
@@ -49,5 +54,5 @@ def render(hits: list[Hit], max_tokens: int = 400) -> str:
                 lines += _hit_lines(n, hit, several, with_links, _shorten(hit.passage) if short else hit.passage)
             text = "\n".join(lines)
             if approx_tokens(text) <= max_tokens:
-                return text
-    return text
+                return text, hits[:count]
+    return text, hits[:1]

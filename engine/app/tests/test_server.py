@@ -127,3 +127,28 @@ async def test_sync_loop_survives_a_crash_in_the_first_sync(engine):
     await asyncio.sleep(0.3)
     task.cancel()
     assert calls, "the loop stopped after the first sync failed"
+
+
+async def test_mcp_unknown_instance_is_named(engine):
+    async with Client(build_mcp(engine)) as mcp:
+        out = await mcp.call_tool("recall", {"query": QUERY, "instance": "nope"})
+        assert out.data == "Unknown instance 'nope'. Configured: marcel."
+
+
+def test_recall_only_remembers_what_was_shown(client, engine, monkeypatch):
+    import server
+    shown_ids = []
+    real_fit = server.fit
+
+    def one_hit_fit(hits, max_tokens=400):
+        text, shown = real_fit(hits[:1], max_tokens)
+        shown_ids.extend(h.note_id for h in shown)
+        return text, shown
+
+    monkeypatch.setattr(server, "fit", one_hit_fit)
+    body = {"prompt": "proxmox swap OOM killer homelab hub summary article", "session_id": "s2"}
+    first = client.post("/recall", json=body, headers=OK).json()
+    assert first["hits"] == shown_ids[:1]
+    monkeypatch.setattr(server, "fit", real_fit)
+    second = client.post("/recall", json=body, headers=OK).json()
+    assert shown_ids[0] not in second["hits"]

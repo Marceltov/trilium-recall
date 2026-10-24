@@ -25,7 +25,7 @@ from config import Config, ConfigError, load_config
 from embed import Embedder
 from index import Index
 from rank import Hit, RankParams, rank
-from render import render
+from render import fit, render
 from sessions import SessionMemory
 from skip import should_skip
 from sync import Syncer
@@ -41,6 +41,10 @@ TOOL_DESCRIPTION = (
     "task, when you hit an unfamiliar error, host or service, and before making a decision the wiki may "
     "already have made. Returns nothing-relevant when the wiki has no match. Read a full page with the "
     "Trilium MCP using the note ID.")
+
+
+class UnknownInstance(ValueError):
+    pass
 
 
 class Engine:
@@ -61,6 +65,8 @@ class Engine:
     # -- search ------------------------------------------------------------------------------
 
     def recall(self, query: str, cwd: str | None = None, limit: int = 3, instance: str | None = None) -> list[Hit]:
+        if instance and instance not in self.syncers:
+            raise UnknownInstance(f"Unknown instance {instance!r}. Configured: {', '.join(self.syncers)}.")
         names = [instance] if instance else list(self.syncers)
         hits: list[Hit] = []
         for name in names:
@@ -156,7 +162,11 @@ def build_mcp(engine: Engine) -> FastMCP:
 
     @mcp.tool(description=TOOL_DESCRIPTION)
     async def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
-        hits = await anyio.to_thread.run_sync(lambda: engine.recall(query, None, max(1, min(limit, 3)), instance))
+        try:
+            hits = await anyio.to_thread.run_sync(
+                lambda: engine.recall(query, None, max(1, min(limit, 3)), instance))
+        except UnknownInstance as e:
+            return str(e)
         return render(hits) or NOTHING
 
     return mcp
@@ -181,11 +191,13 @@ def build_app(engine: Engine, background: bool = True) -> BearerGate:
             return JSONResponse({"context": "", "skipped": reason})
         started = time.perf_counter()
         hits = await anyio.to_thread.run_sync(lambda: engine.recall(prompt, cwd))
-        fresh = set(engine.sessions.fresh(session_id, [h.note_id for h in hits]))
-        hits = [h for h in hits if h.note_id in fresh]
+        unseen = set(engine.sessions.peek(session_id, [h.note_id for h in hits]))
+        # Remember only what the token budget let through; a dropped hit may come next time.
+        text, shown = fit([h for h in hits if h.note_id in unseen])
+        engine.sessions.record(session_id, [h.note_id for h in shown])
         ms = round((time.perf_counter() - started) * 1000, 1)
-        log.info("recall hits=%d ms=%s", len(hits), ms)  # never log the prompt
-        return JSONResponse({"context": render(hits), "hits": [h.note_id for h in hits], "ms": ms})
+        log.info("recall hits=%d ms=%s", len(shown), ms)  # never log the prompt
+        return JSONResponse({"context": text, "hits": [h.note_id for h in shown], "ms": ms})
 
     @contextlib.asynccontextmanager
     async def lifespan(app):

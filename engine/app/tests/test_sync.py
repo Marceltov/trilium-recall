@@ -104,3 +104,10 @@ def test_status_counts(world, syncer):
 def test_never_mutates(world, syncer):
     syncer.full_build(); syncer.poll(); syncer.reconcile()
     assert {m for m, _ in world.requests} == {"GET"}
+
+
+def test_full_build_during_outage_keeps_old_index(world, syncer, idx):
+    syncer.full_build()
+    world.fail = True
+    syncer.full_build()
+    assert syncer.status.last_error and idx.note(world.wiki_page) is not None
