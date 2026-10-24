@@ -23,13 +23,32 @@ def _normalise(v: np.ndarray) -> np.ndarray:
     return (v / norms).astype(np.float32)
 
 
+def token_batches(lengths: list[int], budget: int) -> list[list[int]]:
+    """Group indices so each batch's padded size (count × longest) stays within budget.
+
+    Memory at inference grows with the padded batch, so long passages go alone or in pairs
+    while short ones share a batch. Sorting by length keeps padding small.
+    """
+    batches: list[list[int]] = []
+    current: list[int] = []
+    for i in sorted(range(len(lengths)), key=lambda i: lengths[i]):
+        if current and (len(current) + 1) * lengths[i] > budget:
+            batches.append(current)
+            current = []
+        current.append(i)
+    if current:
+        batches.append(current)
+    return batches
+
+
 class OnnxEmbedder:
     """intfloat/multilingual-e5-small, int8 ONNX: mean pooling over the attention mask, L2-normalised."""
 
     name = "multilingual-e5-small-int8"
     dim = 384
     max_tokens = 512
-    batch = 8
+    # Padded tokens per inference call: 1024 keeps peak RSS near 310 MB (8 × 512 reached 550 MB).
+    token_budget = 1024
 
     def __init__(self, model_dir: Path, threads: int = 4):
         import onnxruntime as ort
@@ -52,9 +71,12 @@ class OnnxEmbedder:
         return [0, *ids, 2]
 
     def _embed(self, texts: list[str]) -> np.ndarray:
-        out = []
-        for start in range(0, len(texts), self.batch):
-            encoded = [self._encode(t) for t in texts[start:start + self.batch]]
+        if not texts:
+            return np.zeros((0, self.dim), dtype=np.float32)
+        all_encoded = [self._encode(t) for t in texts]
+        out = np.zeros((len(texts), self.dim), dtype=np.float32)
+        for batch in token_batches([len(e) for e in all_encoded], self.token_budget):
+            encoded = [all_encoded[i] for i in batch]
             width = max(len(e) for e in encoded)
             ids = np.full((len(encoded), width), 1, dtype=np.int64)  # 1 = <pad>
             mask = np.zeros((len(encoded), width), dtype=np.int64)
@@ -66,10 +88,8 @@ class OnnxEmbedder:
                 feed["token_type_ids"] = np.zeros_like(ids)
             hidden = self._session.run(None, feed)[0]
             weights = mask[..., None].astype(np.float32)
-            out.append((hidden * weights).sum(axis=1) / np.maximum(weights.sum(axis=1), 1e-9))
-        if not out:
-            return np.zeros((0, self.dim), dtype=np.float32)
-        return _normalise(np.concatenate(out))
+            out[batch] = (hidden * weights).sum(axis=1) / np.maximum(weights.sum(axis=1), 1e-9)
+        return _normalise(out)
 
     def embed_queries(self, texts: list[str]) -> np.ndarray:
         return self._embed([f"query: {t}" for t in texts])
