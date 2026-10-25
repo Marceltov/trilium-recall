@@ -13,7 +13,8 @@ services:
     build: .
     depends_on: [trilium]
     environment:
-      RECALL_TOKEN: dev-only-recall-token
+      RECALL_LOGIN_PASSWORD: dev-only-recall-password
+      RECALL_BASE_URL: http://localhost:9191   # turns on the OAuth login for /mcp
       RECALL_INSTANCES: fixture
       TRILIUM_FIXTURE_URL: http://trilium:8080
       TRILIUM_FIXTURE_TOKEN: "C5UabwKWscNW_jpk8BcWnPXPkJykgOlk4M9YGOboq+zUAYYM9MIe328o="

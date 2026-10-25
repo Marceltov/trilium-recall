@@ -4,6 +4,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
+from mcp.server.auth.routes import validate_issuer_url
+from pydantic import AnyHttpUrl
+
 
 class ConfigError(Exception):
     pass
@@ -18,8 +21,9 @@ class InstanceConfig:
 
 @dataclass
 class Config:
-    token: str
+    password: str  # RECALL_LOGIN_PASSWORD: a static Bearer token, and the OAuth login page's password
     instances: list[InstanceConfig]
+    base_url: str | None = None  # public URL; set, it turns on OAuth for /mcp
     data_dir: Path = Path("/data")
     model_dir: Path = Path("/models/e5-small")
     host: str = "0.0.0.0"
@@ -49,9 +53,19 @@ def _int(env: Mapping[str, str], key: str, default: int) -> int:
 
 
 def load_config(env: Mapping[str, str]) -> Config:
-    token = env.get("RECALL_TOKEN", "").strip()
-    if not token:
-        raise ConfigError("RECALL_TOKEN is not set: clients authenticate with it, so the engine refuses to start without it")
+    if env.get("RECALL_TOKEN", "").strip():
+        raise ConfigError("RECALL_TOKEN was renamed to RECALL_LOGIN_PASSWORD in 0.3.0: rename it in the environment")
+    password = env.get("RECALL_LOGIN_PASSWORD", "").strip()
+    if not password:
+        raise ConfigError("RECALL_LOGIN_PASSWORD is not set: clients authenticate with it, "
+                          "so the engine refuses to start without it")
+    base_url = env.get("RECALL_BASE_URL", "").strip().rstrip("/") or None
+    if base_url:
+        try:
+            validate_issuer_url(AnyHttpUrl(base_url))
+        except ValueError as e:
+            raise ConfigError(f"RECALL_BASE_URL={base_url!r} is not a valid OAuth issuer "
+                              f"(https, no query or fragment; plain http only for localhost): {e}") from None
     names = [n.strip() for n in env.get("RECALL_INSTANCES", "").split(",") if n.strip()]
     if not names:
         raise ConfigError("RECALL_INSTANCES is empty: name at least one Trilium instance, e.g. RECALL_INSTANCES=marcel")
@@ -66,8 +80,9 @@ def load_config(env: Mapping[str, str]) -> Config:
             raise ConfigError(f"{prefix}_TOKEN is not set for instance {name!r}")
         instances.append(InstanceConfig(name, _etapi_url(url), etapi))
     return Config(
-        token=token,
+        password=password,
         instances=instances,
+        base_url=base_url,
         data_dir=Path(env.get("RECALL_DATA_DIR", "/data")),
         model_dir=Path(env.get("RECALL_MODEL_DIR", "/models/e5-small")),
         host=env.get("RECALL_HOST", "0.0.0.0"),

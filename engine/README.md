@@ -11,7 +11,7 @@ uv sync                                  # dev environment
 uv run pytest -q app/tests --ignore=app/tests/live   # unit tests
 ./run-tests.sh -q                        # unit + live against the disposable fixture
 bash scripts/fetch-model.sh .models/e5-small         # model for the ONNX tests (gitignored)
-uv run python app/eval.py --url http://localhost:9191 --token dev-only-recall-token \
+uv run python app/eval.py --url http://localhost:9191 --token dev-only-recall-password \
   --cases eval/fixture-cases.yaml --verbose          # score a running engine
 ```
 
@@ -37,7 +37,7 @@ ETAPI), `sync` (build, poll, reconcile), `rank` (fusion + gate), `skip`, `sessio
 
 `fixture/trilium-data` is a committed Trilium v0.106.1 DB holding Trilium's demo notes plus a
 synthetic wiki (`fixture/seed.py`, fixed `fx…` noteIds). `fixture/etapi.token` and
-`dev-only-recall-token` are throwaway credentials for that instance only. Live tests are pinned
+`dev-only-recall-password` are throwaway credentials for that instance only. Live tests are pinned
 to `localhost:9190/9191` and never read the environment (`test_live_target.py` guards it).
 To change the seed: start a clean copy, run `skills/trilium-llm-wiki/setup.py` and
 `fixture/seed.py`, stop Trilium, commit the DB.

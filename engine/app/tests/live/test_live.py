@@ -7,7 +7,7 @@ from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
 
 from eval import evaluate, passes
-from tests.live.conftest import ENGINE, RECALL_TOKEN
+from tests.live.conftest import ENGINE, RECALL_PASSWORD
 
 CASES = Path(__file__).parents[3] / "eval" / "fixture-cases.yaml"
 
@@ -58,14 +58,14 @@ def test_label_change_does_not_bump_modified_but_reaches_index(engine, trilium):
 
 def test_mcp_tool_over_http():
     async def call():
-        transport = StreamableHttpTransport(f"{ENGINE}/mcp", headers={"Authorization": f"Bearer {RECALL_TOKEN}"})
+        transport = StreamableHttpTransport(f"{ENGINE}/mcp", headers={"Authorization": f"Bearer {RECALL_PASSWORD}"})
         async with Client(transport) as c:
             return (await c.call_tool("recall", {"query": "which bridge carries the IoT VLAN"})).data
     assert "id=fxBridges" in asyncio.run(call())
 
 
 def test_fixture_eval_meets_targets():
-    metrics, results = evaluate(ENGINE, RECALL_TOKEN, yaml.safe_load(CASES.read_text()))
+    metrics, results = evaluate(ENGINE, RECALL_PASSWORD, yaml.safe_load(CASES.read_text()))
     bad = [r for r in results if (r["expect"] == "none") != (not r["hits"])
            or (r["expect"] != "none" and not set(r["hits"]) & set(r["expect"]))]
     assert passes(metrics), (metrics, bad)

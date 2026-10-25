@@ -28,7 +28,8 @@ services:
     restart: unless-stopped
     mem_limit: 600m
     environment:
-      RECALL_TOKEN: ${RECALL_TOKEN}          # a long random string; clients send it as a bearer token
+      RECALL_LOGIN_PASSWORD: ${RECALL_LOGIN_PASSWORD}   # a long random string, see below
+      RECALL_BASE_URL: https://recall.example           # public URL; turns on the OAuth login
       RECALL_INSTANCES: main
       TRILIUM_MAIN_URL: http://trilium:8080
       TRILIUM_MAIN_TOKEN: ${RECALL_ETAPI_TOKEN}
@@ -51,11 +52,22 @@ takes about half a minute for a few hundred notes; `status` turns from `starting
 For claude.ai or remote clients, put the engine behind your TLS reverse proxy like the Trilium Notes
 MCP server.
 
+`RECALL_LOGIN_PASSWORD` is the engine's one secret, used two ways:
+
+- **As a header:** Claude Code's hook and `claude mcp add -H` send it as `Authorization: Bearer …`.
+- **In the OAuth login:** with `RECALL_BASE_URL` set, clients that can't send a header (claude.ai)
+  open a login page that asks for it once. They then hold only their own OAuth tokens, which
+  refresh on their own.
+
+Generate it with `openssl rand -hex 32` and keep it in your password manager. Changing it logs out
+every OAuth client.
+
 ### Settings
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `RECALL_TOKEN` | required | Bearer token for `/recall` and `/mcp` |
+| `RECALL_LOGIN_PASSWORD` | required | Static Bearer token for `/recall` and `/mcp`, and the OAuth login password (0.3.0 renamed it from `RECALL_TOKEN`) |
+| `RECALL_BASE_URL` | unset | Public `https://` URL. Set, `/mcp` also takes OAuth logins; unset, only the header works |
 | `RECALL_INSTANCES` | required | Comma-separated names, one per Trilium Notes instance |
 | `TRILIUM_<NAME>_URL`, `TRILIUM_<NAME>_TOKEN` | required | Per instance; `<NAME>` upper-cased, `-` → `_` |
 | `RECALL_POLL_SECONDS` | `60` | How often changed notes are picked up |
@@ -63,7 +75,7 @@ MCP server.
 | `RECALL_PORT` | `8082` | |
 
 With several instances, one query searches all of them and each hit names its instance. Everyone
-holding `RECALL_TOKEN` can search every configured instance.
+holding `RECALL_LOGIN_PASSWORD`, or logged in with it, can search every configured instance.
 
 ### What gets indexed
 
@@ -82,6 +94,13 @@ Ask Claude to "set up wiki recall". The `trilium-recall-setup` skill asks for th
 checks `/health`, writes the hook's config and registers the `wiki-recall` MCP server. To switch the
 hook off, ask Claude to remove wiki recall (or delete `recall.json` from the plugin data folder).
 
+## 3. Connect claude.ai
+
+Needs `RECALL_BASE_URL` and the reverse proxy. In claude.ai, *Customize → Connectors → Add custom
+connector*, with the URL `https://<your engine>/mcp`. claude.ai opens the engine's login page: enter
+`RECALL_LOGIN_PASSWORD` once. The `recall` tool then works in every chat, and on the desktop and
+mobile apps of the same account.
+
 ## Checking quality
 
 The engine ships an evaluation command. Write a YAML file of questions with the pages that should
@@ -97,7 +116,7 @@ and run it against the engine:
 
 ```bash
 docker compose exec trilium-recall python eval.py --url http://localhost:8082 \
-  --token "$RECALL_TOKEN" --cases /data/cases.yaml --verbose
+  --token "$RECALL_LOGIN_PASSWORD" --cases /data/cases.yaml --verbose
 ```
 
 It reports hit@3 (the right page among the first three), silence on unanswerable questions and
