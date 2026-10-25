@@ -1,21 +1,28 @@
 """HTTP + MCP front of the recall engine, and the background sync loop.
 
-Routes: GET /health (open), POST /recall (Claude Code hook), /mcp (MCP `recall` tool), all but
-/health behind one bearer token.
+Routes: GET /health (open), POST /recall (Claude Code hook), /mcp (MCP `recall` tool). The static
+Bearer token is RECALL_LOGIN_PASSWORD. With RECALL_BASE_URL set, /mcp also takes OAuth tokens from a
+login with that password (see oauth.py) and the OAuth routes are open; /recall stays static-only.
 """
 
-import asyncio
+import os
+
+# Before anything imports caio (fastmcp's file store does): its io_uring/linux-aio backends take locked
+# kernel memory per store and Docker's default seccomp blocks io_uring. Threads are plenty here.
+os.environ.setdefault("CAIO_IMPL", "thread")
+
+import asyncio  # noqa: E402
 import contextlib
 import hmac
 import json
 import logging
-import os
 import sys
 import time
 
 import anyio
 import httpx
 from fastmcp import FastMCP
+from fastmcp.server.auth import OAuthProvider
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -24,6 +31,7 @@ from starlette.routing import Mount, Route
 from config import Config, ConfigError, load_config
 from embed import Embedder
 from index import Index
+from oauth import build_oauth_provider
 from rank import Hit, RankParams, rank
 from render import fit, render
 from sessions import SessionMemory
@@ -138,14 +146,19 @@ class Engine:
 # -- auth ---------------------------------------------------------------------------------------
 
 class BearerGate:
-    """Pure ASGI (streamable HTTP must not be buffered): every path but /health needs the token."""
+    """Pure ASGI (streamable HTTP must not be buffered). Without OAuth every path but /health needs the
+    static token; with OAuth only /recall does, and FastMCP's auth guards /mcp."""
 
-    def __init__(self, app, token: str):
+    def __init__(self, app, token: str, oauth: bool = False):
         self.app = app
         self.expected = f"Bearer {token}".encode()
+        self.oauth = oauth
+
+    def _gated(self, path: str) -> bool:
+        return path == "/recall" if self.oauth else path != "/health"
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http" and scope["path"] != "/health":
+        if scope["type"] == "http" and self._gated(scope["path"]):
             given = dict(scope["headers"]).get(b"authorization", b"")
             if not hmac.compare_digest(given, self.expected):
                 response = JSONResponse({"error": "unauthorized"}, status_code=401,
@@ -157,8 +170,8 @@ class BearerGate:
 
 # -- app ----------------------------------------------------------------------------------------
 
-def build_mcp(engine: Engine) -> FastMCP:
-    mcp = FastMCP("trilium-recall")
+def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
+    mcp = FastMCP("trilium-recall", auth=auth)
 
     @mcp.tool(description=TOOL_DESCRIPTION)
     async def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
@@ -173,7 +186,9 @@ def build_mcp(engine: Engine) -> FastMCP:
 
 
 def build_app(engine: Engine, background: bool = True) -> BearerGate:
-    mcp_app = build_mcp(engine).http_app(path="/mcp", host_origin_protection=False)
+    config = engine.config
+    auth = build_oauth_provider(config.base_url, config.password, config.data_dir) if config.base_url else None
+    mcp_app = build_mcp(engine, auth).http_app(path="/mcp", host_origin_protection=False)
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse(engine.health())
@@ -211,7 +226,7 @@ def build_app(engine: Engine, background: bool = True) -> BearerGate:
 
     app = Starlette(routes=[Route("/health", health), Route("/recall", recall, methods=["POST"]),
                             Mount("/", app=mcp_app)], lifespan=lifespan)
-    return BearerGate(app, engine.config.token)
+    return BearerGate(app, config.password, oauth=auth is not None)
 
 
 def build_error_app(message: str) -> Starlette:
@@ -241,6 +256,7 @@ def main() -> None:
 
     logging.basicConfig(level=os.environ.get("RECALL_LOG_LEVEL", "INFO"),
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per ETAPI call drowns the log
     try:
         config = load_config(os.environ)
         if not (config.model_dir / "model.onnx").exists():

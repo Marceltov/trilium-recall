@@ -14,7 +14,7 @@ QUERY = "proxmox swap OOM killer"
 
 
 def make_engine(tmp_path, worlds):
-    config = Config(token="secret", instances=[InstanceConfig(n, f"http://{n}/etapi", "e") for n in worlds],
+    config = Config(password="secret", instances=[InstanceConfig(n, f"http://{n}/etapi", "e") for n in worlds],
                     data_dir=tmp_path)
     engine = Engine(config, HashEmbedder(), transports={n: w.etapi.transport() for n, w in worlds.items()})
     engine.params = RankParams(min_cos=0.2)
@@ -78,7 +78,7 @@ def test_degraded_when_trilium_down(client, engine, world):
 
 
 def test_starting_before_first_sync(tmp_path, world):
-    config = Config(token="secret", instances=[InstanceConfig("marcel", "http://m/etapi", "e")], data_dir=tmp_path)
+    config = Config(password="secret", instances=[InstanceConfig("marcel", "http://m/etapi", "e")], data_dir=tmp_path)
     engine = Engine(config, HashEmbedder(), transports={"marcel": world.etapi.transport()})
     with TestClient(build_app(engine, background=False)) as c:
         assert c.get("/health").json()["status"] == "starting"

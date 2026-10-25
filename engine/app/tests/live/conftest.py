@@ -12,7 +12,7 @@ import pytest
 
 ENGINE = "http://localhost:9191"
 TRILIUM = "http://localhost:9190/etapi"
-RECALL_TOKEN = "dev-only-recall-token"
+RECALL_PASSWORD = "dev-only-recall-password"
 ETAPI_TOKEN = (Path(__file__).parents[3] / "fixture" / "etapi.token").read_text().strip()
 
 
@@ -33,7 +33,7 @@ def pytest_collection_modifyitems(items):
 
 @pytest.fixture
 def engine():
-    with httpx.Client(base_url=ENGINE, headers={"Authorization": f"Bearer {RECALL_TOKEN}"}, timeout=30) as c:
+    with httpx.Client(base_url=ENGINE, headers={"Authorization": f"Bearer {RECALL_PASSWORD}"}, timeout=30) as c:
         yield c
 
 
