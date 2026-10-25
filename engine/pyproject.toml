@@ -22,7 +22,7 @@ dependencies = [
 package = false
 
 [tool.uv.sources]
-mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.0" }
+mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.1" }
 
 [dependency-groups]
 dev = [

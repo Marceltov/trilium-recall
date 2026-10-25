@@ -20,7 +20,7 @@ drifted. Should recall keep its copy?
 
 ## Decision Outcome
 
-Chosen: **the shared library**, pinned by git tag (`v0.1.0`). Recall supplies only its one-field form,
+Chosen: **the shared library**, pinned by git tag (`v0.1.1`). Recall supplies only its one-field form,
 a constant-time password check and the same check for static Bearer tokens. Behaviour is unchanged
 (the `rcl_` tokens, the password-derived store key, `/recall` static-only), and public clients can now
 revoke.
