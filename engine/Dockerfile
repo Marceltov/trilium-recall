@@ -7,6 +7,10 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 ENV UV_PYTHON_PREFERENCE=only-system \
     UV_PYTHON_DOWNLOADS=never
+# git: mcp-login-oauth is pinned by git tag. Builder stage only; the runtime image doesn't get it.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev

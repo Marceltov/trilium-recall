@@ -2,20 +2,15 @@
 
 Routes: GET /health (open), POST /recall (Claude Code hook), /mcp (MCP `recall` tool). The static
 Bearer token is RECALL_LOGIN_PASSWORD. With RECALL_BASE_URL set, /mcp also takes OAuth tokens from a
-login with that password (see oauth.py) and the OAuth routes are open; /recall stays static-only.
+login with that password (mcp-login-oauth) and the OAuth routes are open; /recall stays static-only.
 """
 
-import os
-
-# Before anything imports caio (fastmcp's file store does): its io_uring/linux-aio backends take locked
-# kernel memory per store and Docker's default seccomp blocks io_uring. Threads are plenty here.
-os.environ.setdefault("CAIO_IMPL", "thread")
-
-import asyncio  # noqa: E402
+import asyncio
 import contextlib
 import hmac
 import json
 import logging
+import os
 import sys
 import time
 
@@ -23,6 +18,7 @@ import anyio
 import httpx
 from fastmcp import FastMCP
 from fastmcp.server.auth import OAuthProvider
+from mcp_login_oauth import LoginField, LoginOAuthProvider, LoginRejected, build_store
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -31,7 +27,6 @@ from starlette.routing import Mount, Route
 from config import Config, ConfigError, load_config
 from embed import Embedder
 from index import Index
-from oauth import build_oauth_provider
 from rank import Hit, RankParams, rank
 from render import fit, render
 from sessions import SessionMemory
@@ -170,6 +165,28 @@ class BearerGate:
 
 # -- app ----------------------------------------------------------------------------------------
 
+def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
+    """OAuth login for /mcp whose password is RECALL_LOGIN_PASSWORD; the same password also works as a
+    static Bearer token. Logins carry no grant: recall has nothing per client to hand to its tools. The
+    store's key is the password, so changing it logs every client out."""
+    expected = config.password.encode()
+
+    async def check_login(form) -> dict:
+        if hmac.compare_digest(form["password"].encode(), expected):
+            return {}
+        raise LoginRejected("Wrong password.")
+
+    async def verify_static(token: str) -> dict | None:
+        return {} if hmac.compare_digest(token.encode(), expected) else None
+
+    args = dict(base_url=config.base_url,
+                store=build_store(config.data_dir / "oauth", secret=config.password, salt="trilium-recall-oauth"),
+                service_name="Wiki recall",
+                fields=[LoginField("password", "Recall password", type="password", required=True)],
+                check_login=check_login, verify_static=verify_static, token_prefix="rcl_")
+    return LoginOAuthProvider(**{**args, **overrides})
+
+
 def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
     mcp = FastMCP("trilium-recall", auth=auth)
 
@@ -185,9 +202,10 @@ def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
     return mcp
 
 
-def build_app(engine: Engine, background: bool = True) -> BearerGate:
+def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | None = None) -> BearerGate:
+    """`oauth_overrides` passes provider arguments through, for tests (e.g. failed_login_delay=0)."""
     config = engine.config
-    auth = build_oauth_provider(config.base_url, config.password, config.data_dir) if config.base_url else None
+    auth = build_oauth_provider(config, **(oauth_overrides or {})) if config.base_url else None
     mcp_app = build_mcp(engine, auth).http_app(path="/mcp", host_origin_protection=False)
 
     async def health(_: Request) -> JSONResponse:

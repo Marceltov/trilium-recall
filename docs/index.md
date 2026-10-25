@@ -62,6 +62,9 @@ MCP server.
 Generate it with `openssl rand -hex 32` and keep it in your password manager. Changing it logs out
 every OAuth client.
 
+The login comes from the shared [mcp-login-oauth](https://github.com/Marceltov/mcp-login-oauth)
+library, which the Trilium Notes, InvoiceNinja and Paperless MCP servers use too.
+
 ### Settings
 
 | Variable | Default | Meaning |

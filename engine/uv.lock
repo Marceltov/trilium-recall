@@ -692,6 +692,14 @@ wheels = [
 ]
 
 [[package]]
+name = "mcp-login-oauth"
+version = "0.1.1"
+source = { git = "https://github.com/Marceltov/mcp-login-oauth?rev=v0.1.1#115b48f24b6ccda4b47d8bf40ba5abea2762db86" }
+dependencies = [
+    { name = "fastmcp" },
+]
+
+[[package]]
 name = "mcp-types"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1541,6 +1549,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "fastmcp" },
     { name = "httpx" },
+    { name = "mcp-login-oauth" },
     { name = "numpy" },
     { name = "onnxruntime" },
     { name = "pyyaml" },
@@ -1561,6 +1570,7 @@ dev = [
 requires-dist = [
     { name = "fastmcp", specifier = ">=3.0.0" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "mcp-login-oauth", git = "https://github.com/Marceltov/mcp-login-oauth?rev=v0.1.1" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "onnxruntime", specifier = ">=1.20" },
     { name = "pyyaml", specifier = ">=6.0" },
