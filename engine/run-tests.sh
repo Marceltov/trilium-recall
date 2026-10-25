@@ -15,6 +15,11 @@ set -euo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 reset_db() {
+  # Trilium's entrypoint chowns its data dir; hand it back when we're not root (CI runner).
+  if [ -n "$(find fixture/trilium-data ! -user "$(id -u)" -print -quit)" ]; then
+    docker compose run --rm --no-deps --user root --entrypoint chown trilium \
+      -R "$(id -u):$(id -g)" /home/node/trilium-data
+  fi
   git checkout -- fixture/trilium-data/
   rm -f fixture/trilium-data/document.db-wal fixture/trilium-data/document.db-shm
 }
