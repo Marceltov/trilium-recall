@@ -8,7 +8,6 @@ import httpx
 import pytest
 from starlette.testclient import TestClient
 
-import oauth
 from config import Config, InstanceConfig
 from embed import HashEmbedder
 from rank import RankParams
@@ -23,9 +22,11 @@ INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
 MCP_HEADERS = {"Accept": "application/json, text/event-stream"}
 
 
-@pytest.fixture(autouse=True)
-def no_delay(monkeypatch):
-    monkeypatch.setattr(oauth, "FAILED_LOGIN_DELAY", 0)
+MAX_LOGIN_ATTEMPTS = 5  # the library's default
+
+
+def app(engine):
+    return build_app(engine, background=False, oauth_overrides={"failed_login_delay": 0})
 
 
 def make_engine(data_dir, base_url=BASE):
@@ -40,7 +41,7 @@ def make_engine(data_dir, base_url=BASE):
 
 @pytest.fixture
 def client(tmp_path):
-    with TestClient(build_app(make_engine(tmp_path), background=False), base_url=BASE) as c:
+    with TestClient(app(make_engine(tmp_path)), base_url=BASE) as c:
         yield c
 
 
@@ -117,7 +118,7 @@ def test_wrong_password_shows_the_form_again(client):
 
 def test_too_many_wrong_passwords_end_the_login(client):
     pending, _ = authorize(client, register(client))
-    for _ in range(oauth.MAX_LOGIN_ATTEMPTS):
+    for _ in range(MAX_LOGIN_ATTEMPTS):
         client.post("/login", data={"id": pending, "password": "nope"}, follow_redirects=False)
     r = client.post("/login", data={"id": pending, "password": PASSWORD}, follow_redirects=False)
     assert r.status_code == 400 and "location" not in r.headers
@@ -157,22 +158,30 @@ def test_refresh_rotates_and_the_old_access_token_dies(client):
 
 
 def test_logins_survive_a_restart_and_are_stored_encrypted(tmp_path):
-    with TestClient(build_app(make_engine(tmp_path), background=False), base_url=BASE) as first:
+    with TestClient(app(make_engine(tmp_path)), base_url=BASE) as first:
         tokens = login(first)
     stored = b"".join(p.read_bytes() for p in (tmp_path / "oauth").rglob("*") if p.is_file())
     assert stored and tokens["access_token"].encode() not in stored
-    with TestClient(build_app(make_engine(tmp_path), background=False), base_url=BASE) as second:
+    with TestClient(app(make_engine(tmp_path)), base_url=BASE) as second:
         assert mcp_status(second, tokens["access_token"]) == 200
 
 
 def test_without_base_url_there_is_no_login(tmp_path):
-    with TestClient(build_app(make_engine(tmp_path, base_url=None), background=False), base_url=BASE) as c:
+    with TestClient(app(make_engine(tmp_path, base_url=None)), base_url=BASE) as c:
         assert c.get("/.well-known/oauth-authorization-server").status_code == 401
         assert c.post("/register", json={}).status_code == 401
         assert mcp_status(c, PASSWORD) == 200
 
 
-def test_file_store_uses_threads_not_kernel_aio():
+def test_public_client_can_revoke(client):
+    tokens = login(client)
+    r = client.post("/revoke", data={"token": tokens["refresh_token"], "client_id": tokens["client_id"]})
+    assert r.status_code == 200, r.text
+    assert mcp_status(client, tokens["access_token"]) == 401
+
+
+def test_file_store_uses_threads_not_kernel_aio(tmp_path):
     # io_uring/linux-aio rings take locked kernel memory per store and Docker's seccomp blocks io_uring.
+    app(make_engine(tmp_path))
     import caio
     assert caio.AsyncioContext.__module__ == "caio.thread_aio_asyncio"
