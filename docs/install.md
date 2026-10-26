@@ -62,7 +62,8 @@ library, which trilium-mcp-proxy and the InvoiceNinja and Paperless MCP servers 
 | `RECALL_POLL_SECONDS` | `60` | How often changed notes are picked up |
 | `RECALL_RECONCILE_SECONDS` | `1800` | Full comparison: deletions, moves, label changes |
 | `RECALL_PORT` | `8082` | |
-| `RECALL_TOOL_DESCRIPTION` | a neutral text | What MCP clients read about the `recall` tool. Name what your notes cover, so the assistant knows when to call it |
+| `RECALL_INSTRUCTIONS` | when to call `recall` | Sent to MCP clients when they connect; most put it into the model's system prompt. Say what your notes cover and when to look them up |
+| `RECALL_TOOL_DESCRIPTION` | a neutral text | What MCP clients read about the `recall` tool itself |
 
 With several instances, one query searches all of them and each hit names its instance. Everyone
 holding `RECALL_LOGIN_PASSWORD`, or logged in with it, can search every configured instance.

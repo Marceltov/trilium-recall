@@ -1,6 +1,6 @@
 import pytest
 
-from config import DEFAULT_TOOL_DESCRIPTION, ConfigError, InstanceConfig, load_config
+from config import DEFAULT_INSTRUCTIONS, DEFAULT_TOOL_DESCRIPTION, ConfigError, InstanceConfig, load_config
 
 
 def test_minimal_config():
@@ -60,3 +60,9 @@ def test_tool_description_defaults_to_neutral_text_and_can_be_set():
     assert load_config(MARCEL).tool_description == DEFAULT_TOOL_DESCRIPTION
     assert load_config({**MARCEL, "RECALL_TOOL_DESCRIPTION": " Search my homelab notes. "}).tool_description \
         == "Search my homelab notes."
+
+
+def test_instructions_default_and_override():
+    assert load_config(MARCEL).instructions == DEFAULT_INSTRUCTIONS
+    assert load_config({**MARCEL, "RECALL_INSTRUCTIONS": "Check my homelab notes first."}).instructions \
+        == "Check my homelab notes first."

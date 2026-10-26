@@ -200,3 +200,33 @@
   --md-mermaid-sequence-note-fg-color: #f6d3ae;
   --md-mermaid-sequence-number-fg-color: #10200c;
 }
+
+/* Headline numbers (Measurements) */
+.tm-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0 1.5rem;
+}
+.tm-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4rem;
+}
+.md-typeset .tm-kpi__value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--md-default-fg-color);
+  font-variant-numeric: tabular-nums;
+}
+.tm-kpi__label {
+  color: var(--md-default-fg-color--light);
+}
+.tm-kpi__note {
+  font-size: 0.7rem;
+  color: var(--md-default-fg-color--lighter);
+}

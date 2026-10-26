@@ -25,6 +25,15 @@ DEFAULT_TOOL_DESCRIPTION = (
     "hit an unfamiliar error, host or service, and before making a decision the notes may already have made. "
     "Returns nothing-relevant when there is no match. Read a full note with the Trilium MCP using the note ID.")
 
+DEFAULT_INSTRUCTIONS = (
+    "This server searches the user's Trilium notes: their decisions, findings and how their systems "
+    "and tools actually behave. Call `recall` before starting a task the notes may cover, when you "
+    "hit an unfamiliar error, host or service, and before making a decision the notes may already "
+    "have made, even when you think you know the answer: the notes hold what is true for this user. "
+    "A hit is a pointer: read the full note with the Trilium MCP server before relying on it. "
+    "If the context already holds passages headed \"Wiki recall\", those came from this server; "
+    "don't search for the same thing again.")
+
 
 @dataclass
 class Config:
@@ -39,6 +48,7 @@ class Config:
     reconcile_seconds: int = 1800
     log_level: str = "INFO"
     tool_description: str = DEFAULT_TOOL_DESCRIPTION  # what MCP clients read about the recall tool
+    instructions: str = DEFAULT_INSTRUCTIONS  # sent on connect; clients put it into the system prompt
 
 
 def _env_name(instance: str) -> str:
@@ -99,4 +109,5 @@ def load_config(env: Mapping[str, str]) -> Config:
         reconcile_seconds=_int(env, "RECALL_RECONCILE_SECONDS", 1800),
         log_level=env.get("RECALL_LOG_LEVEL", "INFO"),
         tool_description=env.get("RECALL_TOOL_DESCRIPTION", "").strip() or DEFAULT_TOOL_DESCRIPTION,
+        instructions=env.get("RECALL_INSTRUCTIONS", "").strip() or DEFAULT_INSTRUCTIONS,
     )

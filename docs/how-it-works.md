@@ -43,7 +43,7 @@ sequenceDiagram
 - **No repeats.** Within one Claude Code session, a note is sent once.
 - **Never in the way.** No config, a slow or broken engine, any error: the hook adds nothing and the prompt goes through.
 
-The `recall` MCP tool runs the same search, without the skip and session steps.
+The `recall` MCP tool runs the same search, without the skip and session steps. When a client connects, the server sends instructions (`RECALL_INSTRUCTIONS`) saying when to call it; clients like Claude Code and claude.ai put them into the model's system prompt.
 
 ## Security
 

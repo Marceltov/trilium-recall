@@ -15,8 +15,8 @@
 Claude finds what your [Trilium Notes](https://triliumnotes.org) already know, **on its own**, without you saying "check my notes".
 
 - **A small container next to Trilium** indexes your notes (keyword search plus a multilingual embedding model, German and English) and answers in a few milliseconds. It only reads, and its index can be rebuilt at any time.
-- **In Claude Code,** a prompt hook sends each prompt to it. When your notes have something relevant, Claude gets up to three short passages with note IDs, a few hundred tokens. Otherwise nothing.
-- **In any MCP client** (claude.ai included), a `recall` tool for searching on purpose.
+- **An MCP server for any client** (claude.ai, Claude Code, …): add the URL and its instructions tell the model when to call `recall`. It gets up to three short passages with note IDs, a few hundred tokens, or nothing.
+- **Automatic in Claude Code:** the optional plugin adds a prompt hook that checks every prompt before Claude sees it.
 
 On a real 280-note Trilium: the right note among the first three for 86 % of questions (Trilium's own search: 41 %), nothing returned for 92 % of questions the notes can't answer, about 16 ms per lookup. [Measurements](https://trilium-recall.marceltov.de/measurements/)
 
@@ -26,7 +26,7 @@ It works on any Trilium. With an [LLM wiki](https://trilium-llm-wiki.marceltov.d
 
 ## Install
 
-Run the container next to Trilium (compose snippet in the [docs](https://trilium-recall.marceltov.de/install/)), then:
+Run the container next to Trilium (compose snippet in the [docs](https://trilium-recall.marceltov.de/install/)), then add `https://<your engine>/mcp` to your MCP client. For automatic mode in Claude Code:
 
 ```
 /plugin marketplace add Marceltov/trilium-recall
