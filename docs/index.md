@@ -25,23 +25,23 @@ flowchart LR
 
 <div class="tm-kpis">
   <div class="tm-kpi">
-    <span class="tm-kpi__value">86 %</span>
+    <span class="tm-kpi__value">&gt; 85 %</span>
     <span class="tm-kpi__label">of questions get the right note among the first three</span>
-    <span class="tm-kpi__note">Trilium's own search: 41 %</span>
+    <span class="tm-kpi__note">Trilium's own search: around 40 %</span>
   </div>
   <div class="tm-kpi">
-    <span class="tm-kpi__value">92 %</span>
+    <span class="tm-kpi__value">&gt; 90 %</span>
     <span class="tm-kpi__label">of questions the notes can't answer get nothing back</span>
     <span class="tm-kpi__note">instead of three weak guesses</span>
   </div>
   <div class="tm-kpi">
-    <span class="tm-kpi__value">16 ms</span>
+    <span class="tm-kpi__value">&lt; 20 ms</span>
     <span class="tm-kpi__label">per lookup, typical (p50)</span>
-    <span class="tm-kpi__note">about 1 % of the hook's 1.5 s limit</span>
+    <span class="tm-kpi__note">well inside the hook's 1.5 s limit</span>
   </div>
 </div>
 
-Measured on a real 280-note Trilium with 49 test questions. [All measurements and charts](measurements.md)
+Measured on a real 280-note Trilium with 49 test questions; yours will differ. [All measurements and charts](measurements.md)
 
 ## What you get
 

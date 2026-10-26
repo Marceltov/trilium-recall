@@ -18,7 +18,7 @@
 - **An MCP server for any client** (claude.ai, Claude Code, …): add the URL and its instructions tell the model when to call `recall`. It gets up to three short passages with note IDs, a few hundred tokens, or nothing.
 - **Automatic in Claude Code:** the optional plugin adds a prompt hook that checks every prompt before Claude sees it.
 
-On a real 280-note Trilium: the right note among the first three for 86 % of questions (Trilium's own search: 41 %), nothing returned for 92 % of questions the notes can't answer, about 16 ms per lookup. [Measurements](https://trilium-recall.marceltov.de/measurements/)
+On a real 280-note Trilium: the right note among the first three for more than 85 % of questions (Trilium's own search: around 40 %), nothing returned for more than 90 % of questions the notes can't answer, under 20 ms per lookup. [Measurements](https://trilium-recall.marceltov.de/measurements/)
 
 It works on any Trilium. With an [LLM wiki](https://trilium-llm-wiki.marceltov.de/) in it, recall knows the wiki's structure and ranks its pages first.
 
