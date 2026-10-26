@@ -42,9 +42,10 @@ xychart-beta
     bar [41, 78, 86]
 ```
 
-Trilium's search needs the exact words of the note. Searching keyword by keyword gets close (78 %),
-but takes 5.3 searches per question on average and always returns something. Recall finds
-paraphrases and questions asked in the other language in one call.
+Trilium's search needs every word of the question in the note, so it often comes back empty: for
+38 % of the answerable questions. Searching keyword by keyword gets close (78 %), but takes 5.3
+searches and 391 ms per question and always returns something. Recall finds paraphrases and
+questions asked in the other language in one call of about 16 ms.
 
 ## What happened to each question
 
@@ -96,11 +97,11 @@ xychart-beta
 
     **Compared with Trilium's own search**
 
-    | | hit@3 | calls per question | silent when nothing fits |
-    |---|---|---|---|
-    | trilium-recall | 0.86 | 1 | 92 % of the time |
-    | Trilium search, the question as one query | 0.41 | 1 | not measured |
-    | Trilium search, one query per keyword | 0.78 | 5.3 on average | never |
+    | | hit@3 | empty although a note answers | silent when nothing fits | calls per question | p50 |
+    |---|---|---|---|---|---|
+    | trilium-recall | 0.86 | 0.03 | 0.92 | 1 | 16 ms |
+    | Trilium search, the question as one query | 0.41 | 0.38 | 0.83 | 1 | 155 ms |
+    | Trilium search, one query per keyword | 0.78 | 0.00 | 0.00 | 5.3 | 391 ms |
 
     **Public fixture, 17 cases**
 
