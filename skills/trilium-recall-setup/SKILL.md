@@ -12,7 +12,7 @@ something about this?" in a few milliseconds. Once connected, Claude Code gets t
 - a **prompt hook** (`UserPromptSubmit`, shipped with this plugin) that sends each prompt to the engine
   and adds up to three short passages to the context when something relevant exists, and nothing
   otherwise;
-- the **`recall` MCP tool** (server name `wiki-recall`), for searching on purpose mid-task.
+- the **`recall` MCP tool** (server name `trilium-recall`), for searching on purpose mid-task.
 
 The connection is two pieces, both written by this skill: the hook's config file
 `recall.json` in the plugin data folder, and the MCP server registration. Never print the password.
@@ -47,11 +47,13 @@ applies to Claude Code.
 4. Register the MCP server (user scope, same as the Trilium instances):
 
    ```bash
-   claude mcp add --transport http wiki-recall "<url>/mcp" -H "Authorization: Bearer <password>" -s user
+   claude mcp add --transport http trilium-recall "<url>/mcp" -H "Authorization: Bearer <password>" -s user
    ```
 
-   If `wiki-recall` already exists, `claude mcp remove wiki-recall -s user` first.
-5. Confirm: `claude mcp get wiki-recall`, then a test request through the hook's path:
+   If `trilium-recall` already exists, `claude mcp remove trilium-recall -s user` first. A server
+   registered under the old name `wiki-recall` (before 0.6.1) points at the same engine: remove it
+   too, or the `recall` tool shows up twice.
+5. Confirm: `claude mcp get trilium-recall`, then a test request through the hook's path:
 
    ```bash
    curl -s -H "Authorization: Bearer <password>" -H 'Content-Type: application/json' \
@@ -63,7 +65,7 @@ applies to Claude Code.
 
 ## Check
 
-`curl -s <url>/health` (URL from `recall.json`) and `claude mcp get wiki-recall`. Report the status,
+`curl -s <url>/health` (URL from `recall.json`) and `claude mcp get trilium-recall` (or `wiki-recall`, the name before 0.6.1). Report the status,
 note and section counts, `last_ok` and any `last_error`.
 
 A `recall.json` written by the trilium-llm-wiki plugin (before recall moved here in 0.5.0) keeps
@@ -72,7 +74,7 @@ working: the hook falls back to it. Writing a new one is only needed to change U
 ## Remove
 
 Delete `recall.json` from the plugin data folder, and an old one under `trilium-llm-wiki*` if present (the hook then does nothing), and run
-`claude mcp remove wiki-recall -s user`.
+`claude mcp remove trilium-recall -s user` (and `wiki-recall`, if it is still registered).
 
 ## Using recall
 

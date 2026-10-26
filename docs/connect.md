@@ -19,7 +19,7 @@ login page (needs `RECALL_BASE_URL` and the reverse proxy), or send it as an
 === "Claude Code"
 
     ```
-    claude mcp add --transport http wiki-recall https://<your engine>/mcp -s user
+    claude mcp add --transport http trilium-recall https://<your engine>/mcp -s user
     ```
 
     then `/mcp` → *Authenticate*. Or with the header instead of the login:
@@ -46,7 +46,7 @@ nothing does, nothing is added.
 
 Then ask Claude to "set up recall". The `trilium-recall-setup` skill asks for the engine URL and
 password, checks `/health`, writes the hook's config (`recall.json` in the plugin's data folder,
-readable only by you) and registers the `wiki-recall` MCP server, so you get both. The hook works
+readable only by you) and registers the `trilium-recall` MCP server, so you get both. The hook works
 from the next prompt, the tool from the next session. To switch the hook off, ask Claude to remove
 recall, or delete `recall.json`.
 

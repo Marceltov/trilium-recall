@@ -32,6 +32,6 @@ wiki's labels stay an optional extra, and the `recall` tool's description is con
 * Good, because recall can be found, installed and released on its own, and the wiki plugin gets
   smaller.
 * Good, because nothing breaks for existing users: the hook reads a `recall.json` left by the wiki
-  plugin, and the `wiki-recall` MCP server name stays.
+  plugin. (The MCP server name `wiki-recall` stayed at first; 0.6.1 renamed it to `trilium-recall`.)
 * Bad, because a user of both now installs two plugins, and existing deployments change one image
   name.
