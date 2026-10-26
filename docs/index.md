@@ -15,17 +15,16 @@ hide:
 
 ```mermaid
 flowchart LR
-    you(["You: a prompt"]) --> cc["Claude Code"]
-    cc -- "prompt hook" --> engine["trilium-recall"]
-    engine -- "up to 3 passages,<br/>or nothing" --> cc
+    clients["claude.ai, Claude Code,<br/>any MCP client"] -- "recall tool,<br/>guided by the server's instructions" --> engine["trilium-recall"]
+    hook["Claude Code plugin:<br/>prompt hook"] -- "every prompt,<br/>automatically" --> engine
+    engine -- "up to 3 passages,<br/>or nothing" --> clients
     engine -. "reads, never writes" .-> trilium[("Trilium Notes")]
-    other["claude.ai and<br/>other MCP clients"] -- "recall tool" --> engine
 ```
 
 ## What you get
 
-- **In Claude Code, automatic.** A prompt hook sends each prompt to the engine. When your notes have something relevant, Claude gets up to three short passages (title, the best lines, note ID and links), a few hundred tokens. When they have nothing, Claude gets nothing.
-- **In any MCP client, on request.** A `recall` tool that claude.ai, the Claude apps or any other client can call mid-task.
+- **An MCP server for any client.** Add one URL to claude.ai, Claude Code or any other MCP client. The server's instructions tell the model when to call `recall`; it gets up to three short passages (title, the best lines, note ID and links), a few hundred tokens, or nothing.
+- **Automatic in Claude Code.** The optional plugin adds a prompt hook that checks every prompt before Claude sees it, so recall doesn't depend on the model deciding to look.
 - **Fast and quiet.** About 16 ms per lookup on a real 280-note Trilium, and a slow or unreachable engine never holds up a prompt. See [Measurements](measurements.md).
 - **German and English.** A multilingual embedding model next to keyword search finds notes by meaning, not only by exact words.
 - **Safe to run.** It reads Trilium through ETAPI and never writes. Its index can be deleted and rebuilt at any time.
@@ -37,4 +36,4 @@ Recall indexes all text and code notes. If you keep an [LLM wiki](https://triliu
 ## Get started
 
 1. [Run the engine](install.md) next to Trilium (one compose service).
-2. [Connect Claude](connect.md): the Claude Code plugin for the hook, a connector for claude.ai.
+2. [Connect Claude](connect.md): add the URL to any MCP client, and the plugin for automatic mode in Claude Code.

@@ -86,6 +86,7 @@ def test_starting_before_first_sync(tmp_path, world):
 
 async def test_mcp_tool(engine):
     async with Client(build_mcp(engine)) as mcp:
+        assert "Call `recall` before" in mcp.instructions
         tools = await mcp.list_tools()
         assert [t.name for t in tools] == ["recall"] and "on your own" in tools[0].description
         out = await mcp.call_tool("recall", {"query": QUERY})

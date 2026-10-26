@@ -182,7 +182,7 @@ def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
 
 
 def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
-    mcp = FastMCP("trilium-recall", auth=auth)
+    mcp = FastMCP("trilium-recall", auth=auth, instructions=engine.config.instructions)
 
     @mcp.tool(description=engine.config.tool_description)
     async def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
