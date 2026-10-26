@@ -35,8 +35,6 @@ Run the container next to Trilium (compose snippet in the [docs](https://trilium
 
 and ask Claude to "set up recall".
 
-Coming from trilium-llm-wiki 0.4.x, where recall used to live? See [Moving from trilium-llm-wiki](https://trilium-recall.marceltov.de/migrating/).
-
 ## What's inside
 
 | Path | What it is |

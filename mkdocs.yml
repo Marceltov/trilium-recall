@@ -17,7 +17,6 @@ nav:
   - Run the engine: install.md
   - Connect Claude: connect.md
   - Measurements: measurements.md
-  - Moving from trilium-llm-wiki: migrating.md
 
 theme:
   name: material
