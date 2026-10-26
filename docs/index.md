@@ -54,16 +54,17 @@ MCP server.
 
 `RECALL_LOGIN_PASSWORD` is the engine's one secret, used two ways:
 
-- **As a header:** Claude Code's hook and `claude mcp add -H` send it as `Authorization: Bearer …`.
-- **In the OAuth login:** with `RECALL_BASE_URL` set, clients that can't send a header (claude.ai)
-  open a login page that asks for it once. They then hold only their own OAuth tokens, which
-  refresh on their own.
+- **As a header:** Claude Code's hook, `claude mcp add -H` and a claude.ai connector's request
+  headers send it as `Authorization: Bearer …`.
+- **In the OAuth login:** with `RECALL_BASE_URL` set, a client can instead start from just the URL
+  and open a login page that asks for it once. Nothing goes into the client's config; it holds only
+  its own OAuth tokens, which refresh on their own.
 
 Generate it with `openssl rand -hex 32` and keep it in your password manager. Changing it logs out
 every OAuth client.
 
 The login comes from the shared [mcp-login-oauth](https://github.com/Marceltov/mcp-login-oauth)
-library, which the Trilium Notes, InvoiceNinja and Paperless MCP servers use too.
+library, which trilium-mcp-proxy and the InvoiceNinja and Paperless MCP servers use too.
 
 ### Settings
 
