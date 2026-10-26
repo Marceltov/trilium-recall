@@ -12,7 +12,7 @@
   </a>
 </p>
 
-Claude finds what your [Trilium Notes](https://triliumnotes.org) already know, **on its own**, without you saying "check my notes".
+**Claude remembers what you wrote in [Trilium Notes](https://triliumnotes.org)**, without you saying "check my notes".
 
 - **A small container next to Trilium** indexes your notes (keyword search plus a multilingual embedding model, German and English) and answers in a few milliseconds. It only reads, and its index can be rebuilt at any time.
 - **An MCP server for any client** (claude.ai, Claude Code, …): add the URL and its instructions tell the model when to call `recall`. It gets up to three short passages with note IDs, a few hundred tokens, or nothing.

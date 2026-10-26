@@ -5,7 +5,7 @@ hide:
 
 <div class="tm-hero" markdown>
 
-# Claude knows what your Trilium notes know
+# Claude remembers what you wrote in Trilium
 
 <p class="tm-hero__lead">trilium-recall is a small container next to Trilium Notes. Before Claude answers, it looks up whether your notes already hold something relevant and hands Claude the few lines that matter. You don't have to say "check my notes".</p>
 
