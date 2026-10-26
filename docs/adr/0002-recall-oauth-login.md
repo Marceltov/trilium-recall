@@ -12,6 +12,11 @@ The recall engine (ADR 0001) authenticated every client with one static Bearer t
 custom connector can't send a static header; it expects an OAuth login. How do claude.ai and other
 OAuth-only clients get access to `recall` without weakening the engine's security boundary? Issue #6.
 
+> **Correction (2026-10-26):** claude.ai custom connectors can send request headers (up to four,
+> under the connector's advanced settings), so the static token works there too. The OAuth login is
+> a convenience (just the URL, nothing pasted into the client's config), not a requirement. The
+> decision below stands.
+
 ## Considered Options
 
 * **Login with an instance's Trilium password**, the way trilium-mcp does: the engine checks the
