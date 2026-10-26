@@ -21,11 +21,33 @@ flowchart LR
     engine -. "reads, never writes" .-> trilium[("Trilium Notes")]
 ```
 
+## In numbers
+
+<div class="tm-kpis">
+  <div class="tm-kpi">
+    <span class="tm-kpi__value">86 %</span>
+    <span class="tm-kpi__label">of questions get the right note among the first three</span>
+    <span class="tm-kpi__note">Trilium's own search: 41 %</span>
+  </div>
+  <div class="tm-kpi">
+    <span class="tm-kpi__value">92 %</span>
+    <span class="tm-kpi__label">of questions the notes can't answer get nothing back</span>
+    <span class="tm-kpi__note">instead of three weak guesses</span>
+  </div>
+  <div class="tm-kpi">
+    <span class="tm-kpi__value">16 ms</span>
+    <span class="tm-kpi__label">per lookup, typical (p50)</span>
+    <span class="tm-kpi__note">about 1 % of the hook's 1.5 s limit</span>
+  </div>
+</div>
+
+Measured on a real 280-note Trilium with 49 test questions. [All measurements and charts](measurements.md)
+
 ## What you get
 
 - **An MCP server for any client.** Add one URL to claude.ai, Claude Code or any other MCP client. The server's instructions tell the model when to call `recall`; it gets up to three short passages (title, the best lines, note ID and links), a few hundred tokens, or nothing.
 - **Automatic in Claude Code.** The optional plugin adds a prompt hook that checks every prompt before Claude sees it, so recall doesn't depend on the model deciding to look.
-- **Fast and quiet.** About 16 ms per lookup on a real 280-note Trilium, and a slow or unreachable engine never holds up a prompt. See [Measurements](measurements.md).
+- **Fast and quiet.** A slow or unreachable engine never holds up a prompt.
 - **German and English.** A multilingual embedding model next to keyword search finds notes by meaning, not only by exact words.
 - **Safe to run.** It reads Trilium through ETAPI and never writes. Its index can be deleted and rebuilt at any time.
 
