@@ -1,5 +1,5 @@
 site_name: trilium-recall
-site_description: "Claude finds what your Trilium Notes know, on its own: a recall container, a Claude Code prompt hook and an MCP recall tool."
+site_description: "Claude remembers what you wrote in Trilium Notes: a recall container with an MCP recall tool and an optional Claude Code prompt hook."
 site_url: https://trilium-recall.marceltov.de/
 repo_url: https://github.com/Marceltov/trilium-recall
 repo_name: Marceltov/trilium-recall

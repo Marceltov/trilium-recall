@@ -8,7 +8,7 @@
     {
       "name": "trilium-recall",
       "source": "./",
-      "description": "Claude finds what your Trilium Notes know on its own: a recall container, a prompt hook and an MCP recall tool."
+      "description": "Claude remembers what you wrote in Trilium Notes: a recall container, an MCP recall tool and an optional prompt hook."
     }
   ]
 }
