@@ -18,13 +18,15 @@ Claude finds what your [Trilium Notes](https://triliumnotes.org) already know, *
 - **In Claude Code,** a prompt hook sends each prompt to it. When your notes have something relevant, Claude gets up to three short passages with note IDs, a few hundred tokens. Otherwise nothing.
 - **In any MCP client** (claude.ai included), a `recall` tool for searching on purpose.
 
+On a real 280-note Trilium: the right note among the first three for 86 % of questions (Trilium's own search: 41 %), nothing returned for 92 % of questions the notes can't answer, about 16 ms per lookup. [Measurements](https://trilium-recall.marceltov.de/measurements/)
+
 It works on any Trilium. With an [LLM wiki](https://trilium-llm-wiki.marceltov.de/) in it, recall knows the wiki's structure and ranks its pages first.
 
 **Full documentation: [trilium-recall.marceltov.de](https://trilium-recall.marceltov.de/)**
 
 ## Install
 
-Run the container next to Trilium (compose snippet in the [docs](https://trilium-recall.marceltov.de/#1-run-the-container)), then:
+Run the container next to Trilium (compose snippet in the [docs](https://trilium-recall.marceltov.de/install/)), then:
 
 ```
 /plugin marketplace add Marceltov/trilium-recall
@@ -33,7 +35,7 @@ Run the container next to Trilium (compose snippet in the [docs](https://trilium
 
 and ask Claude to "set up recall".
 
-Coming from trilium-llm-wiki 0.4.x, where recall used to live? See [Moving from trilium-llm-wiki](https://trilium-recall.marceltov.de/#moving-from-trilium-llm-wiki).
+Coming from trilium-llm-wiki 0.4.x, where recall used to live? See [Moving from trilium-llm-wiki](https://trilium-recall.marceltov.de/migrating/).
 
 ## What's inside
 
