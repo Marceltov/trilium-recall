@@ -24,7 +24,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from config import Config, ConfigError, load_config
+from config import DEFAULT_TOOL_DESCRIPTION, Config, ConfigError, load_config
 from embed import Embedder
 from index import Index
 from rank import Hit, RankParams, rank
@@ -37,13 +37,7 @@ from trilium import EtapiClient
 log = logging.getLogger("recall")
 
 VERSION = os.environ.get("APP_VERSION", "dev")
-NOTHING = "Nothing relevant in the wiki for this query."
-TOOL_DESCRIPTION = (
-    "Search Marcel's Trilium wiki (decisions, findings, how his homelab and tools actually behave) and get "
-    "up to 3 short passages with note IDs. Call it on your own before working on a homelab or infrastructure "
-    "task, when you hit an unfamiliar error, host or service, and before making a decision the wiki may "
-    "already have made. Returns nothing-relevant when the wiki has no match. Read a full page with the "
-    "Trilium MCP using the note ID.")
+NOTHING = "Nothing relevant in the notes for this query."
 
 
 class UnknownInstance(ValueError):
@@ -190,7 +184,7 @@ def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
 def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
     mcp = FastMCP("trilium-recall", auth=auth)
 
-    @mcp.tool(description=TOOL_DESCRIPTION)
+    @mcp.tool(description=engine.config.tool_description)
     async def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
         try:
             hits = await anyio.to_thread.run_sync(
@@ -251,7 +245,7 @@ def build_error_app(message: str) -> Starlette:
     """Started with a broken configuration: say what is wrong instead of dying silently."""
     mcp = FastMCP("trilium-recall")
 
-    @mcp.tool(description=TOOL_DESCRIPTION)
+    @mcp.tool(description=DEFAULT_TOOL_DESCRIPTION)
     def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
         return f"The recall engine is not running: {message}"
 

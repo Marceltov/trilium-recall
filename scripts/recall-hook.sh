@@ -4,8 +4,14 @@
 # no config, a slow or broken engine, or any other failure → no output, exit 0.
 set -u
 
-data_dir="${CLAUDE_PLUGIN_DATA:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-llm-wiki}"
+data_dir="${CLAUDE_PLUGIN_DATA:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-recall}"
 config="$data_dir/recall.json"
+# Before 0.5.0 the hook shipped with trilium-llm-wiki: keep using a config written there.
+if [ ! -f "$config" ]; then
+  for legacy in "$(dirname "$data_dir")"/trilium-llm-wiki*/recall.json; do
+    [ -f "$legacy" ] && { config="$legacy"; break; }
+  done
+fi
 # Always drain stdin: exiting with a large prompt unread leaves the writer a broken pipe.
 [ -f "$config" ] || { cat >/dev/null; exit 0; }
 

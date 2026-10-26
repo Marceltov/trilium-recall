@@ -1,8 +1,7 @@
-# recall-engine
+# engine
 
-Hybrid search over a Trilium instance for the trilium-llm-wiki plugin: a Claude Code
-`UserPromptSubmit` hook (`POST /recall`) and an MCP `recall` tool (`/mcp`). User docs:
-`docs/recall.md` (published at https://trilium-llm-wiki.marceltov.de/recall/).
+Hybrid search over Trilium instances: a Claude Code `UserPromptSubmit` hook (`POST /recall`) and an
+MCP `recall` tool (`/mcp`). User docs: `docs/index.md` (published at https://trilium-recall.marceltov.de/).
 
 ## Commands
 

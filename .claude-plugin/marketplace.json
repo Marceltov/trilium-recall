@@ -1,0 +1,14 @@
+{
+  "name": "trilium-recall",
+  "description": "Claude Code plugin: automatic recall from Trilium Notes.",
+  "owner": {
+    "name": "Marcel Bruckner (Marceltov)"
+  },
+  "plugins": [
+    {
+      "name": "trilium-recall",
+      "source": "./",
+      "description": "Claude finds what your Trilium Notes know on its own: a recall container, a prompt hook and an MCP recall tool."
+    }
+  ]
+}

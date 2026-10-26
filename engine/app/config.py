@@ -19,6 +19,13 @@ class InstanceConfig:
     etapi_token: str
 
 
+DEFAULT_TOOL_DESCRIPTION = (
+    "Search the user's Trilium notes (decisions, findings, how their systems and tools actually behave) and "
+    "get up to 3 short passages with note IDs. Call it on your own before a task the notes may cover, when you "
+    "hit an unfamiliar error, host or service, and before making a decision the notes may already have made. "
+    "Returns nothing-relevant when there is no match. Read a full note with the Trilium MCP using the note ID.")
+
+
 @dataclass
 class Config:
     password: str  # RECALL_LOGIN_PASSWORD: a static Bearer token, and the OAuth login page's password
@@ -31,6 +38,7 @@ class Config:
     poll_seconds: int = 60
     reconcile_seconds: int = 1800
     log_level: str = "INFO"
+    tool_description: str = DEFAULT_TOOL_DESCRIPTION  # what MCP clients read about the recall tool
 
 
 def _env_name(instance: str) -> str:
@@ -90,4 +98,5 @@ def load_config(env: Mapping[str, str]) -> Config:
         poll_seconds=_int(env, "RECALL_POLL_SECONDS", 60),
         reconcile_seconds=_int(env, "RECALL_RECONCILE_SECONDS", 1800),
         log_level=env.get("RECALL_LOG_LEVEL", "INFO"),
+        tool_description=env.get("RECALL_TOOL_DESCRIPTION", "").strip() or DEFAULT_TOOL_DESCRIPTION,
     )

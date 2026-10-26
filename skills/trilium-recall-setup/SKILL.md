@@ -1,16 +1,16 @@
 ---
 name: trilium-recall-setup
-description: Connect Claude Code to a running recall engine for the LLM wiki (the trilium-llm-wiki-recall container) — set its URL and token once, so a prompt hook injects relevant wiki passages automatically and the `recall` MCP tool is available; also list or remove that connection. Use when the user asks to set up, connect, configure, check or remove wiki recall / the recall engine, or says Claude should find wiki knowledge on its own.
+description: Connect Claude Code to a running trilium-recall engine (the container next to Trilium Notes) — set its URL and token once, so a prompt hook injects relevant passages from the user's notes automatically and the `recall` MCP tool is available; also check or remove that connection. Use when the user asks to set up, connect, configure, check or remove recall / the recall engine / wiki recall, or says Claude should find what their Trilium notes know on its own.
 ---
 
-# Set up wiki recall
+# Set up recall
 
-The recall engine is a separate container next to Trilium Notes (see the docs page *Recall engine*:
-https://trilium-llm-wiki.marceltov.de/recall/). It indexes the wiki and answers "does the wiki know
+The recall engine is a separate container next to Trilium Notes (docs:
+https://trilium-recall.marceltov.de/). It indexes the user's notes and answers "do the notes know
 something about this?" in a few milliseconds. Once connected, Claude Code gets two things:
 
 - a **prompt hook** (`UserPromptSubmit`, shipped with this plugin) that sends each prompt to the engine
-  and adds up to three short wiki passages to the context when something relevant exists, and nothing
+  and adds up to three short passages to the context when something relevant exists, and nothing
   otherwise;
 - the **`recall` MCP tool** (server name `wiki-recall`), for searching on purpose mid-task.
 
@@ -37,10 +37,10 @@ applies to Claude Code.
 2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first
    index build runs). `"error"` names the misconfiguration; stop and report it.
 3. Write the hook config, readable only by the user. The plugin data folder is `$CLAUDE_PLUGIN_DATA`,
-   falling back to `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-llm-wiki`:
+   falling back to `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-recall`:
 
    ```bash
-   dir="${CLAUDE_PLUGIN_DATA:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-llm-wiki}"
+   dir="${CLAUDE_PLUGIN_DATA:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/trilium-recall}"
    mkdir -p "$dir" && umask 077 && python3 -c 'import json,sys; json.dump({"url": sys.argv[1], "token": sys.argv[2]}, open(sys.argv[3], "w"))' "<url>" "<password>" "$dir/recall.json"
    ```
 
@@ -55,7 +55,7 @@ applies to Claude Code.
 
    ```bash
    curl -s -H "Authorization: Bearer <password>" -H 'Content-Type: application/json' \
-     -d '{"prompt": "<a question the wiki can answer>"}' "<url>/recall"
+     -d '{"prompt": "<a question the notes can answer>"}' "<url>/recall"
    ```
 
    A `context` starting with `Wiki recall` means it works. The hook takes effect from the next prompt;
@@ -66,13 +66,16 @@ applies to Claude Code.
 `curl -s <url>/health` (URL from `recall.json`) and `claude mcp get wiki-recall`. Report the status,
 note and section counts, `last_ok` and any `last_error`.
 
+A `recall.json` written by the trilium-llm-wiki plugin (before recall moved here in 0.5.0) keeps
+working: the hook falls back to it. Writing a new one is only needed to change URL or token.
+
 ## Remove
 
-Delete `recall.json` from the plugin data folder (the hook then does nothing) and run
+Delete `recall.json` from the plugin data folder, and an old one under `trilium-llm-wiki*` if present (the hook then does nothing), and run
 `claude mcp remove wiki-recall -s user`.
 
 ## Using recall
 
-When the `recall` tool is available, call it yourself before a homelab or infrastructure task, when
-you hit an unfamiliar error, host or service, and before a decision the wiki may already have made.
+When the `recall` tool is available, call it yourself before a task the notes may cover, when you hit
+an unfamiliar error, host or service, and before a decision the notes may already have made.
 Hits carry note IDs; read a full page with the Trilium Notes MCP.

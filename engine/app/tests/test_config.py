@@ -1,6 +1,6 @@
 import pytest
 
-from config import ConfigError, InstanceConfig, load_config
+from config import DEFAULT_TOOL_DESCRIPTION, ConfigError, InstanceConfig, load_config
 
 
 def test_minimal_config():
@@ -54,3 +54,9 @@ def test_hyphenated_instance_name():
 def test_no_instances_raises():
     with pytest.raises(ConfigError, match="RECALL_INSTANCES"):
         load_config({"RECALL_LOGIN_PASSWORD": "t"})
+
+
+def test_tool_description_defaults_to_neutral_text_and_can_be_set():
+    assert load_config(MARCEL).tool_description == DEFAULT_TOOL_DESCRIPTION
+    assert load_config({**MARCEL, "RECALL_TOOL_DESCRIPTION": " Search my homelab notes. "}).tool_description \
+        == "Search my homelab notes."

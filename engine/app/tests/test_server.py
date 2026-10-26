@@ -91,7 +91,7 @@ async def test_mcp_tool(engine):
         out = await mcp.call_tool("recall", {"query": QUERY})
         assert out.data.startswith("Wiki recall (marcel)")
         none = await mcp.call_tool("recall", {"query": "sourdough hydration"})
-        assert none.data == "Nothing relevant in the wiki for this query."
+        assert none.data == "Nothing relevant in the notes for this query."
 
 
 def test_two_instances_merge(tmp_path):

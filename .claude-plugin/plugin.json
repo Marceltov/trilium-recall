@@ -1,0 +1,18 @@
+{
+  "name": "trilium-recall",
+  "version": "0.5.0",
+  "description": "Let Claude find what your Trilium Notes already know, on its own: a small search container next to Trilium (keywords plus a multilingual embedding model) and a prompt hook that adds the few relevant passages to Claude's context, plus an MCP recall tool for any client.",
+  "author": {
+    "name": "Marcel Bruckner"
+  },
+  "homepage": "https://trilium-recall.marceltov.de/",
+  "repository": "https://github.com/Marceltov/trilium-recall",
+  "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "trilium",
+    "recall",
+    "semantic-search",
+    "mcp",
+    "hooks"
+  ]
+}

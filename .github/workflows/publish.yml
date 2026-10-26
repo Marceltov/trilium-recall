@@ -1,9 +1,9 @@
-name: Publish recall engine
+name: Publish engine image
 
-# Build the recall-engine image and push it to GHCR as
-# ghcr.io/<owner>/trilium-llm-wiki-recall. Auth uses the built-in GITHUB_TOKEN.
+# Build the engine image and push it to GHCR as
+# ghcr.io/<owner>/trilium-recall. Auth uses the built-in GITHUB_TOKEN.
 #
-#   branch push (recall-engine/ changed) -> :<branch>        (a testable image; latest is NOT moved)
+#   branch push (engine/ changed)        -> :<branch>        (a testable image; latest is NOT moved)
 #   v* tag push                          -> :1.2.3/:1.2/:1 + :latest, plus a GitHub release
 #
 # The plugin and the image are versioned together: a v* tag must equal
@@ -14,9 +14,9 @@ on:
     branches: ["**"]
     # Path filters are not evaluated for tag pushes, so every v* tag builds.
     paths:
-      - "recall-engine/**"
+      - "engine/**"
       - ".claude-plugin/plugin.json"
-      - ".github/workflows/recall-publish.yml"
+      - ".github/workflows/publish.yml"
     tags: ["v*"]
   workflow_dispatch:
 
@@ -24,7 +24,7 @@ env:
   REGISTRY: ghcr.io
 
 concurrency:
-  group: recall-publish-${{ github.ref }}
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
 
       # Derived from the repository, not hardcoded, so an account rename can't break the push.
       - name: Set lowercase image name
-        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}-recall" >> "$GITHUB_ENV"
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
       - name: Compute tags and labels
         id: meta
@@ -66,7 +66,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: recall-engine
+          context: engine
           # CT 115 (and most homelab hosts) are amd64; arm64 would double the build for no user.
           platforms: linux/amd64
           push: true
@@ -95,11 +95,11 @@ jobs:
           git for-each-ref "refs/tags/$TAG" --format='%(contents)' > notes.md
           [ -s notes.md ] && printf '\n---\n\n' >> notes.md
           cat >> notes.md <<'NOTES'
-          ## Recall engine image
+          ## Engine image
 
-          `ghcr.io/marceltov/trilium-llm-wiki-recall:__VERSION__` — deploy it next to Trilium and
-          connect the plugin with the `trilium-recall-setup` skill. Guide:
-          https://trilium-llm-wiki.marceltov.de/recall/
+          `ghcr.io/marceltov/trilium-recall:__VERSION__` — deploy it next to Trilium and
+          connect Claude Code with the `trilium-recall-setup` skill. Guide:
+          https://trilium-recall.marceltov.de/
           NOTES
           sed -i "s|__VERSION__|${TAG#v}|g" notes.md
 

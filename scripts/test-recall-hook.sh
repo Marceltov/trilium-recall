@@ -63,6 +63,10 @@ assert out["hookEventName"] == "UserPromptSubmit" and out["additionalContext"] =
 }
 
 run "no config → silent" context none
+mkdir -p "$tmp/trilium-llm-wiki-synced"
+printf '{"url": "http://127.0.0.1:%s", "token": "tok-123"}' "$port" > "$tmp/trilium-llm-wiki-synced/recall.json"
+run "config left by trilium-llm-wiki is used" context context
+rm -r "$tmp/trilium-llm-wiki-synced"
 mkdir -p "$CLAUDE_PLUGIN_DATA"
 printf '{"url": "http://127.0.0.1:%s", "token": "tok-123"}' "$port" > "$CLAUDE_PLUGIN_DATA/recall.json"
 run "context is injected" context context

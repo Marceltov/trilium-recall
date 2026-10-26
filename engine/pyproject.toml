@@ -1,7 +1,7 @@
 [project]
 name = "trilium_recall"
 version = "0.0.0"
-description = "Recall engine for the trilium-llm-wiki plugin: hybrid search over a Trilium instance"
+description = "trilium-recall engine: hybrid search over Trilium Notes instances"
 requires-python = ">=3.12"
 dependencies = [
     "fastmcp>=3.0.0",

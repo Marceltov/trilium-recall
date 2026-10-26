@@ -1,4 +1,4 @@
-# Recall engine for the trilium-llm-wiki plugin, run as a sidecar next to Trilium.
+# trilium-recall engine, run as a sidecar next to Trilium.
 #
 # Multi-stage: resolve dependencies into a venv with uv, fetch the pinned
 # embedding model, then ship only the venv, the model and app/ on python-slim.

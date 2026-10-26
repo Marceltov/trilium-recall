@@ -1,0 +1,66 @@
+site_name: trilium-recall
+site_description: "Claude finds what your Trilium Notes know, on its own: a recall container, a Claude Code prompt hook and an MCP recall tool."
+site_url: https://trilium-recall.marceltov.de/
+repo_url: https://github.com/Marceltov/trilium-recall
+repo_name: Marceltov/trilium-recall
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Marcel Bruckner. Licensed under <a href="https://github.com/Marceltov/trilium-recall/blob/main/LICENSE">AGPL-3.0-or-later</a>
+
+# Planning notes are local-only.
+exclude_docs: |
+  superpowers/
+  adr/
+
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+  logo: trilium.svg
+  favicon: trilium.svg
+  font:
+    text: Atkinson Hyperlegible Next
+    code: Atkinson Hyperlegible Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.instant
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - content.action.edit
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

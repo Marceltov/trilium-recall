@@ -1,0 +1,29 @@
+name: Checks
+
+# The prompt hook's self-test, the engine's unit tests, and the live tests plus fixture eval
+# against a disposable Trilium (engine/run-tests.sh).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  hook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/test-recall-hook.sh
+      - run: scripts/check-version.sh
+
+  engine:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run pytest -q app/tests --ignore=app/tests/live
+      - run: ./run-tests.sh -q

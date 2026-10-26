@@ -1,18 +1,22 @@
-# Recall engine
+# trilium-recall
 
-Optional. The recall engine lets Claude find what your wiki already knows **on its own**, without
-you saying "check the wiki". It is a small container next to Trilium Notes that indexes your notes
+trilium-recall lets Claude find what your Trilium Notes already know **on its own**, without you
+saying "check my notes". It is a small container next to Trilium Notes that indexes your notes
 (keyword search plus a multilingual embedding model, German and English) and answers in a few
 milliseconds.
 
-- **Claude Code:** a prompt hook sends each prompt to the engine. When the wiki has something
+- **Claude Code:** a prompt hook sends each prompt to the engine. When your notes have something
   relevant, Claude gets up to three short passages (title, type, topic, the best lines, note ID and
-  links), a few hundred tokens. When it has nothing, Claude gets nothing. The same page is not sent
-  twice in one session, and a slow or unreachable engine never holds up a prompt (1.5 s limit).
+  links), a few hundred tokens. When they have nothing, Claude gets nothing. The same note is not
+  sent twice in one session, and a slow or unreachable engine never holds up a prompt (1.5 s limit).
 - **Any MCP client:** a `recall` tool for searching on purpose, for example mid-task.
 
 It reads Trilium Notes through ETAPI and never writes. Its index is rebuilt from Trilium Notes at
 any time, so deleting it is safe.
+
+It works on any Trilium. If you run an [LLM wiki](https://trilium-llm-wiki.marceltov.de/) in it,
+recall knows the wiki's structure: wiki pages rank first, sources come as their summaries, and the
+wiki's plumbing stays out of the index.
 
 ## 1. Run the container
 
@@ -24,7 +28,7 @@ services:
     # ... your existing Trilium Notes service ...
 
   trilium-recall:
-    image: ghcr.io/marceltov/trilium-llm-wiki-recall:latest   # or pin a version
+    image: ghcr.io/marceltov/trilium-recall:latest   # or pin a version
     restart: unless-stopped
     mem_limit: 600m
     environment:
@@ -77,16 +81,17 @@ library, which trilium-mcp-proxy and the InvoiceNinja and Paperless MCP servers 
 | `RECALL_POLL_SECONDS` | `60` | How often changed notes are picked up |
 | `RECALL_RECONCILE_SECONDS` | `1800` | Full comparison: deletions, moves, label changes |
 | `RECALL_PORT` | `8082` | |
+| `RECALL_TOOL_DESCRIPTION` | a neutral text | What MCP clients read about the `recall` tool. Name what your notes cover, so the assistant knows when to call it |
 
 With several instances, one query searches all of them and each hit names its instance. Everyone
 holding `RECALL_LOGIN_PASSWORD`, or logged in with it, can search every configured instance.
 
 ### What gets indexed
 
-All text and code notes, except the wiki's plumbing (*Locks*, *Templates*, *Views*), archived notes
-and Trilium Notes' hidden notes. Wiki pages rank first, then sources, then journal and other notes. A
-source with a summary page shows up as its summary unless the source itself holds the matching
-detail.
+All text and code notes, except archived notes and Trilium Notes' hidden notes. Journal notes are
+recognised by `#calendarRoot`. With an LLM wiki, its plumbing (*Locks*, *Templates*, *Views*) is left
+out, wiki pages rank first, then sources, then journal and other notes, and a source with a summary
+page shows up as its summary unless the source itself holds the matching detail.
 
 Edits appear within a minute. Label and relation changes (for example a page set to `reviewed`)
 appear at the next full comparison, within 30 minutes, because Trilium Notes does not mark a note as
@@ -94,9 +99,16 @@ modified when only its attributes change.
 
 ## 2. Connect Claude Code
 
-Ask Claude to "set up wiki recall". The `trilium-recall-setup` skill asks for the engine URL and token,
+Install the plugin:
+
+```
+/plugin marketplace add Marceltov/trilium-recall
+/plugin install trilium-recall
+```
+
+Then ask Claude to "set up recall". The `trilium-recall-setup` skill asks for the engine URL and token,
 checks `/health`, writes the hook's config and registers the `wiki-recall` MCP server. To switch the
-hook off, ask Claude to remove wiki recall (or delete `recall.json` from the plugin data folder).
+hook off, ask Claude to remove recall (or delete `recall.json` from the plugin data folder).
 
 ## 3. Connect claude.ai
 
@@ -108,7 +120,7 @@ mobile apps of the same account.
 ## Checking quality
 
 The engine ships an evaluation command. Write a YAML file of questions with the pages that should
-answer them, plus some the wiki cannot answer:
+answer them, plus some your notes cannot answer:
 
 ```yaml
 - {query: "how are the guests backed up?", expect: [<noteId>]}
@@ -125,3 +137,14 @@ docker compose exec trilium-recall python eval.py --url http://localhost:8082 \
 
 It reports hit@3 (the right page among the first three), silence on unanswerable questions and
 latency. Keep your questions private: they describe your notes.
+
+## Moving from trilium-llm-wiki
+
+Up to 0.4.x the engine and the hook were part of
+[trilium-llm-wiki](https://trilium-llm-wiki.marceltov.de/), and the image was
+`ghcr.io/marceltov/trilium-llm-wiki-recall`. From 0.5.0:
+
+- change the image to `ghcr.io/marceltov/trilium-recall`; the settings and the index volume stay
+  the same;
+- install this plugin. Its hook keeps reading the `recall.json` the old plugin wrote, and the
+  `wiki-recall` MCP server registration stays as it is.
