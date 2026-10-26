@@ -35,7 +35,7 @@ With the MCP server alone, the model decides when to call `recall`. The instruct
 call early, but a model that thinks it knows the answer often skips the call, and that's exactly
 when your notes would have corrected it.
 
-The plugin adds a prompt hook that removes the decision: every prompt is checked, in about 16 ms,
+The plugin adds a prompt hook that removes the decision: every prompt is checked
 before Claude sees it. When something relevant exists, Claude starts with it in the context; when
 nothing does, nothing is added.
 
