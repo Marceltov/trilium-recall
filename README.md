@@ -12,6 +12,8 @@
   </a>
 </p>
 
+> **trilium-recall has grown into [passageway](https://passageway.marceltov.de/)**, a source-agnostic retrieval service with a Trilium connector that reaches parity on this repository's public fixture. trilium-recall keeps working as it is; new work happens there. [Moving to passageway](https://trilium-recall.marceltov.de/migrate/) says what changes.
+
 **Claude remembers what you wrote in [Trilium Notes](https://triliumnotes.org)**, without you saying "check my notes".
 
 - **A small container next to Trilium** indexes your notes (keyword search plus a multilingual embedding model, German and English) and answers in a few milliseconds. It only reads, and its index can be rebuilt at any time.

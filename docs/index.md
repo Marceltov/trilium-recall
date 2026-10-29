@@ -13,6 +13,13 @@ hide:
 
 </div>
 
+!!! note "trilium-recall has grown into passageway"
+    The engine is now [passageway](https://passageway.marceltov.de/), with Trilium as one connector among others, a choice of models and a public measurement. trilium-recall keeps working as it is; new work happens there. [Moving to passageway](migrate.md) says what changes.
+
+<div markdown>
+
+</div>
+
 ```mermaid
 flowchart LR
     clients["claude.ai, Claude Code,<br/>any MCP client"] -- "recall tool,<br/>guided by the server's instructions" --> engine["trilium-recall"]
