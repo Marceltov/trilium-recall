@@ -8,7 +8,7 @@
     {
       "name": "trilium-recall",
       "source": "./",
-      "description": "Claude remembers what you wrote in Trilium Notes: a recall container, an MCP recall tool and an optional prompt hook."
+      "description": "Superseded by passageway (passageway.marceltov.de) and no longer developed. Claude remembers what you wrote in Trilium Notes: a recall container, an MCP recall tool and an optional prompt hook."
     }
   ]
 }

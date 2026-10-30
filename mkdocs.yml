@@ -17,6 +17,7 @@ nav:
   - Run the engine: install.md
   - Connect Claude: connect.md
   - Measurements: measurements.md
+  - Moving to passageway: migrate.md
 
 theme:
   name: material

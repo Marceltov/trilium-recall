@@ -1,5 +1,8 @@
 # Connect Claude
 
+!!! warning "Superseded by passageway"
+    trilium-recall is no longer developed. For a new setup use [passageway](https://passageway.marceltov.de/); [Moving to passageway](migrate.md) says what changes.
+
 Recall is an MCP server. Add its URL to your client and you're done: when the client connects, the
 engine tells the model what the notes are for and when to call `recall` (its
 [instructions](install.md#settings)). In Claude Code, the plugin adds an automatic mode on top.

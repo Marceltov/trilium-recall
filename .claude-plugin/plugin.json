@@ -1,7 +1,7 @@
 {
   "name": "trilium-recall",
-  "version": "0.6.1",
-  "description": "Claude remembers what you wrote in Trilium Notes: a small search container next to Trilium (keywords plus a multilingual embedding model) and a prompt hook that adds the few relevant passages to Claude's context, plus an MCP recall tool for any client.",
+  "version": "0.7.0",
+  "description": "Superseded by passageway (passageway.marceltov.de) and no longer developed. Claude remembers what you wrote in Trilium Notes: a small search container next to Trilium (keywords plus a multilingual embedding model) and a prompt hook that adds the few relevant passages to Claude's context, plus an MCP recall tool for any client.",
   "author": {
     "name": "Marcel Bruckner"
   },

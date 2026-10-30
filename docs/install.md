@@ -1,5 +1,8 @@
 # Run the engine
 
+!!! warning "Superseded by passageway"
+    trilium-recall is no longer developed. For a new setup use [passageway](https://passageway.marceltov.de/); [Moving to passageway](migrate.md) says what changes.
+
 Add a service to the compose file that runs your Trilium Notes:
 
 ```yaml
