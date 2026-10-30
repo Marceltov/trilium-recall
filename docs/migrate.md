@@ -19,7 +19,7 @@ trilium-recall stays as it is and keeps working; new work happens in passageway.
 | `RECALL_INSTANCES=main`, `TRILIUM_MAIN_URL`, `TRILIUM_MAIN_TOKEN` | One `[[connector]]` per instance in `passageway.toml` (below); the token stays an environment variable, referenced as `env:NAME` |
 | `recall(query, instance=...)` | `recall(query, source=...)`: an instance is a source, named after its connector |
 | `RECALL_MODEL_DIR` | `PASSAGEWAY_MODEL_DIR`; the model is fetched on first start, pinned and checksummed, or baked into the image |
-| The trilium-recall plugin and `/trilium-recall-setup` | The passageway plugin (`/plugin marketplace add Marceltov/passageway`) and `/passageway-setup` |
+| The trilium-recall plugin and `/trilium-recall-setup` | The passageway plugin (`/plugin marketplace add Marceltov/passageway`) and `/passageway-connect` (and `/passageway-add-source` writes the connector) |
 | A summary shown in place of its source when it matched almost as well | Not carried over: a summary and its source link each other, and a hit shows the other as a related item ([ADR 0004](https://passageway.marceltov.de/adr/0004-no-summary-for-source-substitution/)) |
 
 ## The configuration
