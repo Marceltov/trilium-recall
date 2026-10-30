@@ -3,20 +3,16 @@ hide:
   - toc
 ---
 
+!!! warning "trilium-recall is superseded by passageway"
+    trilium-recall is no longer developed. Its engine lives on as [passageway](https://passageway.marceltov.de/): the same retrieval with Trilium as one connector among others, a choice of models and a public measurement. Use passageway for anything new; [Moving to passageway](migrate.md) says what changes. The pages here describe trilium-recall as it was left.
+
 <div class="tm-hero" markdown>
 
 # Claude remembers what you wrote in Trilium
 
 <p class="tm-hero__lead">trilium-recall is a small container next to Trilium Notes. Before Claude answers, it looks up whether your notes already hold something relevant and hands Claude the few lines that matter. You don't have to say "check my notes".</p>
 
-[Run the engine](install.md){ .md-button .md-button--primary } [Connect Claude](connect.md){ .md-button }
-
-</div>
-
-!!! note "trilium-recall has grown into passageway"
-    The engine is now [passageway](https://passageway.marceltov.de/), with Trilium as one connector among others, a choice of models and a public measurement. trilium-recall keeps working as it is; new work happens there. [Moving to passageway](migrate.md) says what changes.
-
-<div markdown>
+[Move to passageway](migrate.md){ .md-button .md-button--primary } [Run the engine](install.md){ .md-button }
 
 </div>
 

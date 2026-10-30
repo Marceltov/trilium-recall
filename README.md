@@ -12,7 +12,8 @@
   </a>
 </p>
 
-> **trilium-recall has grown into [passageway](https://passageway.marceltov.de/)**, a source-agnostic retrieval service with a Trilium connector that reaches parity on this repository's public fixture. trilium-recall keeps working as it is; new work happens there. [Moving to passageway](https://trilium-recall.marceltov.de/migrate/) says what changes.
+> [!IMPORTANT]
+> **trilium-recall is superseded by [passageway](https://passageway.marceltov.de/) and no longer developed.** passageway is the same retrieval with Trilium as one connector among others, and it finds more on this repository's own test questions. Use passageway for anything new; [Moving to passageway](https://trilium-recall.marceltov.de/migrate/) says what changes. What follows describes trilium-recall as it was left.
 
 **Claude remembers what you wrote in [Trilium Notes](https://triliumnotes.org)**, without you saying "check my notes".
 

@@ -2,12 +2,12 @@
 
 trilium-recall's engine has grown into **[passageway](https://passageway.marceltov.de/)**: the same retrieval (keywords plus a multilingual embedding model, a relevance gate, up to three passages or nothing), made source-agnostic, with Trilium as one connector among others, a choice of embedding models, a public evaluation harness and a published measurement. On this repository's own public fixture the passageway Trilium connector scores hit@3 0.92 and silence 1.0 against trilium-recall's 0.83 and 1.0 ([the connector](https://passageway.marceltov.de/connectors/trilium/)).
 
-trilium-recall stays as it is and keeps working; new work happens in passageway. This page says what changes when you move.
+trilium-recall is superseded by passageway and no longer developed: no fixes, no new versions. A running trilium-recall keeps working as it is, but there is nothing that moves it over for you; this page says what changes, so the move is a new passageway next to Trilium, configured once.
 
 ## What stays the same
 
 - The `recall` MCP tool, its instructions on connect, the up-to-three-passages answer and the silence when nothing fits.
-- The prompt hook for Claude Code: passageway's hook reads a `recall.json` written for trilium-recall until you replace it, so the connection keeps working after the switch.
+- The prompt hook for Claude Code: the passageway plugin brings its own, connected with `/passageway-connect`.
 - Read-only access through ETAPI, the index that can always be deleted and rebuilt, the areas of an LLM wiki (`#llmWikiPart`, `#calendarRoot`), the wiki labels and relations.
 
 ## What changes
@@ -53,4 +53,4 @@ The index is rebuilt from Trilium on the first start (about half a minute for a 
 
 ## Measured, not promised
 
-The parity above is on the public fixture in this repository (`eval/fixture-cases.yaml`), reproduced in passageway with the real model against an in-test ETAPI. The private question set behind the numbers on [Measurements](measurements.md) has not been run against passageway yet; that is the owner's check before the production instance moves.
+The parity above is on the public fixture in this repository (`eval/fixture-cases.yaml`), reproduced in passageway with the real model against an in-test ETAPI. The private question set behind the numbers on [Measurements](measurements.md) has not been run against passageway yet.
